@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聪明钱带单员列表</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            font-size: 13px; color: #333; background: #f0f2f5;
+        }
+
+        /* ===== Top Navigation Bar ===== */
+        .top-nav {
+            height: 40px; background: #1d1e23; display: flex; align-items: center;
+            padding: 0 12px; color: #ccc; font-size: 12px;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+        }
+        .top-nav .logo { display: flex; align-items: center; margin-right: 8px; flex-shrink: 0; }
+        .top-nav .logo span { font-weight: bold; color: #BAFF00; font-size: 14px; }
+        .top-nav .nav-items { display: flex; align-items: center; gap: 0; flex: 1; overflow: hidden; }
+        .top-nav .nav-items a {
+            color: #aaa; text-decoration: none; padding: 4px 7px; border-radius: 4px;
+            white-space: nowrap; font-size: 12px; transition: color 0.2s;
+        }
+        .top-nav .nav-items a:hover { color: #fff; }
+        .top-nav .nav-items a.active { color: #BAFF00; }
+        .top-nav .nav-right { display: flex; align-items: center; gap: 12px; margin-left: auto; white-space: nowrap; flex-shrink: 0; }
+        .top-nav .nav-right .avatar {
+            width: 24px; height: 24px; border-radius: 50%; background: #444;
+            display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px;
+        }
+
+        /* ===== Left Sidebar ===== */
+        .sidebar {
+            width: 160px; background: #242e38; position: fixed; top: 40px; left: 0; bottom: 0;
+            z-index: 999; overflow-y: auto; color: #bbb;
+        }
+        .sidebar .sidebar-title { padding: 14px 12px 10px; font-size: 13px; font-weight: 600; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .sidebar .menu-item {
+            display: flex; align-items: center; padding: 9px 16px; color: #bbb; font-size: 12px;
+            cursor: pointer; transition: background 0.2s; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .sidebar .menu-item:hover { background: rgba(255,255,255,0.05); }
+        .sidebar .menu-item.active { color: #BAFF00; background: rgba(186, 255, 0, 0.08); }
+        .sidebar .menu-group-title {
+            padding: 10px 12px 6px; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        /* ===== Main Content ===== */
+        .main-content { margin-left: 160px; margin-top: 40px; padding: 16px 20px; min-height: calc(100vh - 40px); }
+        .page-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 16px; }
+
+        /* ===== Stats Cards ===== */
+        .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
+        .stat-card { background: #fff; border-radius: 4px; padding: 14px 16px; border-left: 3px solid #409eff; }
+        .stat-card .label { font-size: 12px; color: #909399; margin-bottom: 4px; }
+        .stat-card .value { font-size: 22px; font-weight: 700; color: #303133; }
+        .stat-card .sub { font-size: 11px; color: #909399; margin-top: 2px; }
+        .stat-card.orange { border-left-color: #e6a23c; }
+        .stat-card.green { border-left-color: #67c23a; }
+        .stat-card.red { border-left-color: #f56c6c; }
+        .stat-card.purple { border-left-color: #9b59b6; }
+
+        /* ===== Filter Area ===== */
+        .filter-area { background: #fff; border-radius: 4px; padding: 16px; margin-bottom: 12px; }
+        .filter-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+        .filter-row:last-child { margin-bottom: 0; }
+        .filter-select {
+            height: 32px; padding: 0 28px 0 10px; border: 1px solid #dcdfe6; border-radius: 4px;
+            font-size: 13px; color: #606266; background: #fff; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23C0C4CC'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 10px center; min-width: 140px; cursor: pointer;
+        }
+        .filter-input {
+            height: 32px; padding: 0 10px; border: 1px solid #dcdfe6; border-radius: 4px;
+            font-size: 13px; color: #606266; min-width: 180px;
+        }
+        .filter-input::placeholder { color: #C0C4CC; }
+        .filter-input:focus { border-color: #409eff; outline: none; }
+        .filter-right { margin-left: auto; display: flex; gap: 8px; }
+        .filter-label { font-size: 12px; color: #606266; white-space: nowrap; }
+
+        /* ===== Buttons ===== */
+        .btn {
+            height: 32px; padding: 0 16px; border: none; border-radius: 4px; font-size: 12px;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+            white-space: nowrap; transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.85; }
+        .btn-blue { background: #409eff; color: #fff; }
+        .btn-orange { background: #e6a23c; color: #fff; }
+        .btn-green { background: #67c23a; color: #fff; }
+        .btn-red { background: #f56c6c; color: #fff; }
+        .btn-plain { height: 32px; padding: 0 16px; border: 1px solid #dcdfe6; border-radius: 4px; background: #fff; color: #606266; font-size: 12px; cursor: pointer; }
+        .btn-plain:hover { border-color: #409eff; color: #409eff; }
+
+        /* ===== Data Table ===== */
+        .table-wrapper { background: #fff; border-radius: 4px; overflow-x: auto; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 1400px; }
+        .data-table thead { background: #f5f7fa; }
+        .data-table th {
+            padding: 10px 8px; text-align: left; font-weight: 600; color: #909399;
+            border-bottom: 1px solid #ebeef5; white-space: nowrap; font-size: 12px;
+        }
+        .data-table td {
+            padding: 10px 8px; border-bottom: 1px solid #ebeef5; color: #606266;
+            vertical-align: middle; font-size: 12px; white-space: nowrap;
+        }
+        .data-table tbody tr:hover { background: #f5f7fa; }
+
+        /* ===== Tags ===== */
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; margin-right: 3px; }
+        .tag-blue { background: #ecf5ff; color: #409eff; border: 1px solid #d9ecff; }
+        .tag-green { background: #f0f9eb; color: #67c23a; border: 1px solid #e1f3d8; }
+        .tag-orange { background: #fdf6ec; color: #e6a23c; border: 1px solid #faecd8; }
+        .tag-red { background: #fef0f0; color: #f56c6c; border: 1px solid #fde2e2; }
+        .tag-gray { background: #f4f4f5; color: #909399; border: 1px solid #e9e9eb; }
+        .tag-purple { background: #f4ecfb; color: #9b59b6; border: 1px solid #e8d5f5; }
+
+        /* ===== Links ===== */
+        .op-link { color: #409eff; text-decoration: none; margin-right: 6px; cursor: pointer; font-size: 12px; }
+        .op-link:hover { text-decoration: underline; }
+        .op-link.danger { color: #f56c6c; }
+        .op-link.success { color: #67c23a; }
+        .op-link.warning { color: #e6a23c; }
+
+        /* ===== Switch ===== */
+        .switch { width: 36px; height: 20px; border-radius: 10px; background: #dcdfe6; cursor: pointer; position: relative; transition: background 0.2s; display: inline-block; }
+        .switch.on { background: #67c23a; }
+        .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .switch.on::after { transform: translateX(16px); }
+
+        .addr { font-family: 'SF Mono', 'Menlo', 'Consolas', monospace; color: #409eff; cursor: pointer; font-size: 12px; }
+        .addr:hover { text-decoration: underline; }
+        .green { color: #67c23a; }
+        .red { color: #f56c6c; }
+        .num { font-variant-numeric: tabular-nums; }
+        .score { font-weight: 600; }
+
+        /* ===== Pagination ===== */
+        .pagination { display: flex; align-items: center; justify-content: flex-end; padding: 10px 12px; gap: 4px; font-size: 12px; color: #606266; }
+        .pg-btn {
+            min-width: 28px; height: 28px; border: 1px solid #dcdfe6; border-radius: 4px;
+            background: #fff; color: #606266; font-size: 12px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .pg-btn.active { background: #409eff; color: #fff; border-color: #409eff; }
+        .pg-info { font-size: 12px; color: #909399; margin-right: auto; }
+
+        /* ===== Modal ===== */
+        .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 1000; }
+        .overlay.show { display: block; }
+        .modal {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 480px; background: #fff; border-radius: 6px; z-index: 1001; box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        .modal.show { display: block; }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #ebeef5; }
+        .modal-header h3 { font-size: 15px; font-weight: 600; color: #303133; }
+        .modal-close { border: none; background: none; font-size: 18px; color: #909399; cursor: pointer; }
+        .modal-close:hover { color: #303133; }
+        .modal-body { padding: 20px; }
+        .form-row { display: flex; align-items: flex-start; margin-bottom: 16px; gap: 10px; }
+        .form-label { width: 100px; font-size: 12px; color: #606266; text-align: right; flex-shrink: 0; padding-top: 7px; }
+        .form-value { flex: 1; }
+        .form-input { height: 32px; padding: 0 10px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 13px; color: #606266; width: 100%; }
+        .form-input:focus { border-color: #409eff; outline: none; }
+        .form-hint { font-size: 11px; color: #C0C4CC; margin-top: 4px; }
+        .form-checkbox { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #606266; }
+        .form-checkbox input { width: 14px; height: 14px; accent-color: #409eff; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px; border-top: 1px solid #ebeef5; }
+    </style>
+</head>
+<body>
+
+<!-- ===== Top Navigation Bar ===== -->
+<div class="top-nav">
+    <div class="logo"><span style="margin-right:6px">✖</span><span>XT</span></div>
+    <div class="nav-items">
+        <a href="#">权限</a><a href="#">NFT</a><a href="#">理财</a><a href="#" class="active">跟单</a><a href="#">运营</a><a href="#">用户</a><a href="#">审核</a><a href="#">现货</a><a href="#">法币</a><a href="#">运维</a><a href="#">合约</a>
+    </div>
+    <div class="nav-right">
+        <span style="color:#aaa;font-size:12px">待审核</span>
+        <span style="color:#aaa;font-size:12px">darren</span>
+        <div class="avatar">D</div>
+    </div>
+</div>
+
+<!-- ===== Left Sidebar ===== -->
+<div class="sidebar">
+    <div class="sidebar-title">跟单管理系统</div>
+    <div class="menu-group-title">聪明钱管理</div>
+    <div class="menu-item active">聪明钱带单员列表</div>
+    <div class="menu-item" onclick="location.href='admin-signal-log.html'">聪明钱信号日志</div>
+    <div class="menu-item" onclick="location.href='admin-config.html'">聪明钱全局配置</div>
+</div>
+
+<!-- ===== Main Content ===== -->
+<div class="main-content">
+    <div class="page-title">合约跟单 - 聪明钱带单员列表</div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card"><div class="label">入池钱包总数</div><div class="value">523</div><div class="sub">活跃 489 / 暂停 34</div></div>
+        <div class="stat-card orange"><div class="label">有跟单的钱包</div><div class="value">38</div><div class="sub">跟单者总计 156 人</div></div>
+        <div class="stat-card green"><div class="label">总带单规模</div><div class="value">$218M</div><div class="sub">链上账户总权益</div></div>
+        <div class="stat-card purple"><div class="label">今日信号数</div><div class="value">1,247</div><div class="sub">已执行 1,180 / 丢弃 67</div></div>
+        <div class="stat-card red"><div class="label">平均延迟</div><div class="value">2.1s</div><div class="sub">P99: 4.8s</div></div>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-area">
+        <div class="filter-row">
+            <span class="filter-label">XT UID</span>
+            <input class="filter-input" placeholder="输入XT用户ID" style="min-width:140px">
+            <span class="filter-label">钱包地址</span>
+            <input class="filter-input" placeholder="输入完整或脱敏地址" style="min-width:200px">
+            <span class="filter-label">风险等级</span>
+            <select class="filter-select"><option>全部</option><option>低风险</option><option>中风险</option><option>高风险</option></select>
+            <span class="filter-label">状态</span>
+            <select class="filter-select"><option>全部</option><option>启用</option><option>暂停</option><option>已移除</option></select>
+        </div>
+        <div class="filter-row">
+            <span class="filter-label">评分区间</span>
+            <input class="filter-input" placeholder="最低分" style="min-width:80px;width:80px"> <span style="color:#ccc">~</span> <input class="filter-input" placeholder="最高分" style="min-width:80px;width:80px">
+            <span class="filter-label">带单规模</span>
+            <select class="filter-select"><option>全部</option><option>&gt;$10K</option><option>&gt;$100K</option><option>&gt;$1M</option><option>&gt;$5M</option></select>
+            <div class="filter-right">
+                <button class="btn btn-blue">查询</button>
+                <button class="btn btn-orange">重置</button>
+                <button class="btn btn-green" onclick="openModal()">+ 手动添加钱包</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>XT UID</th>
+                    <th>钱包地址</th>
+                    <th>数据来源</th>
+                    <th>内部评分</th>
+                    <th>风险等级</th>
+                    <th>当前跟单/最大</th>
+                    <th>累计跟随</th>
+                    <th>总资产</th>
+                    <th>分润比例</th>
+                    <th>活跃天数</th>
+                    <th>最近交易时间</th>
+                    <th>策略标签</th>
+                    <th>状态</th>
+                    <th>显示</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="pagination">
+            <span class="pg-info">共 523 条，每页 10 条</span>
+            <div class="pg-btn">‹</div>
+            <div class="pg-btn active">1</div>
+            <div class="pg-btn">2</div>
+            <div class="pg-btn">3</div>
+            <div class="pg-btn">4</div>
+            <div class="pg-btn">5</div>
+            <div class="pg-btn">...</div>
+            <div class="pg-btn">53</div>
+            <div class="pg-btn">›</div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Modal: 手动添加钱包 ===== -->
+<div class="overlay" id="overlay" onclick="closeModal()"></div>
+<div class="modal" id="modal">
+    <div class="modal-header">
+        <h3>手动添加钱包</h3>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+        <div class="form-row">
+            <div class="form-label">钱包地址 *</div>
+            <div class="form-value">
+                <input class="form-input" placeholder="输入完整 Hyperliquid 地址（0x...）">
+                <div class="form-hint">提交后系统自动拉取链上数据并计算评分</div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-label">入池条件</div>
+            <div class="form-value">
+                <label class="form-checkbox"><input type="checkbox"> 跳过入池条件（允许不满足评分/活跃天数等条件的钱包入池）</label>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-label">备注</div>
+            <div class="form-value">
+                <input class="form-input" placeholder="如：KOL xxx 推荐">
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-plain" onclick="closeModal()">取消</button>
+        <button class="btn btn-blue" onclick="closeModal()">确认添加</button>
+    </div>
+</div>
+
+<script>
+const mockData = [
+    {uid:'960001001',addr:'0x8e096995c3e4a3f0bc5b3ea1cba94de2aa4d70c9',score:92,risk:'low',cur:4,max:100,total:128,aum:'$1,563,266',roi:'+177.48%',pnl:'+$1,939,226',tpnl:'+$4,821,500',ratio:'15%',days:245,last:'2026-04-02 08:14',tags:['BTC主力','趋势','中长线'],status:true,display:true,rec:false},
+    {uid:'960001002',addr:'0x418aa6bf98a2b2bc93779f810330d88cde488888',score:85,risk:'low',cur:10,max:100,total:342,aum:'$5,700,000',roi:'+8.13%',pnl:'+$919,399',tpnl:'+$2,150,800',ratio:'15%',days:380,last:'2026-04-02 06:30',tags:['多币种','稳健'],status:true,display:true,rec:true},
+    {uid:'960001003',addr:'0x7dacca323e44f168494c779bb5e7483c468ef410',score:95,risk:'low',cur:0,max:100,total:0,aum:'$9,100,000',roi:'+342.19%',pnl:'+$15,398,782',tpnl:'+$28,400,000',ratio:'15%',days:312,last:'2026-04-01 22:15',tags:['巨鲸','趋势'],status:true,display:true,rec:false},
+    {uid:'960001004',addr:'0xbf732ea04197942783e34730ed6e0f6099575d58',score:88,risk:'moderate',cur:3,max:100,total:56,aum:'$57,900',roi:'+674.24%',pnl:'+$50,462',tpnl:'+$82,300',ratio:'15%',days:156,last:'2026-04-02 07:42',tags:['BTC主力','多头偏向'],status:true,display:true,rec:false},
+    {uid:'960001005',addr:'0x939f95036d2e7b6d7419ec072bf9d967352204d2',score:78,risk:'low',cur:0,max:100,total:15,aum:'$11,900,000',roi:'+109.55%',pnl:'+$9,387,716',tpnl:'+$15,200,000',ratio:'15%',days:290,last:'2026-04-01 18:20',tags:['ETH主力','巨鲸'],status:true,display:true,rec:false},
+    {uid:'960001006',addr:'0x8cc94dc843e1ea7a19805e0cca43001123512b6a',score:74,risk:'moderate',cur:0,max:100,total:8,aum:'$6,800,000',roi:'+3.72%',pnl:'+$415,254',tpnl:'+$980,000',ratio:'15%',days:210,last:'2026-03-31 14:08',tags:['趋势','巨鲸'],status:true,display:true,rec:false},
+    {uid:'960001007',addr:'0xb0a55f13d22f66e6d495ac98113841b2326e9540',score:72,risk:'moderate',cur:0,max:100,total:0,aum:'$30,000,000',roi:'+0.00%',pnl:'$0',tpnl:'+$450,000',ratio:'15%',days:420,last:'2026-03-28 10:00',tags:['巨鲸'],status:true,display:false,rec:false},
+    {uid:'960001008',addr:'0xa87a233e8a7d8951ff790a2e39738086cb5f71b7',score:68,risk:'moderate',cur:3,max:100,total:45,aum:'$8,600,000',roi:'-5.84%',pnl:'-$535,637',tpnl:'+$1,200,000',ratio:'15%',days:195,last:'2026-04-02 09:55',tags:['ETH主力','空头偏向'],status:true,display:true,rec:false},
+    {uid:'960001009',addr:'0x45d26f28196d226497130c4bac709d808fed4029',score:55,risk:'high',cur:0,max:100,total:3,aum:'$15,800,000',roi:'-9.72%',pnl:'-$1,701,454',tpnl:'-$320,000',ratio:'15%',days:165,last:'2026-04-01 20:30',tags:['多币种','巨鲸'],status:false,display:false,rec:false},
+    {uid:'960001010',addr:'0x5b5d51203a0f9079f8aeb098a6523a13f298c060',score:42,risk:'high',cur:1,max:100,total:12,aum:'$2,000,000',roi:'-83.99%',pnl:'-$36,937,767',tpnl:'-$18,500,000',ratio:'15%',days:88,last:'2026-03-30 05:12',tags:['多币种'],status:false,display:false,rec:false},
+];
+
+function riskTag(r){ return r==='low'?'<span class="tag tag-green">低风险</span>':r==='moderate'?'<span class="tag tag-orange">中风险</span>':'<span class="tag tag-red">高风险</span>'; }
+
+document.getElementById('tableBody').innerHTML = mockData.map(d=>`<tr>
+    <td class="num">${d.uid}</td>
+    <td><span class="addr" title="${d.addr}">${d.addr.slice(0,6)}...${d.addr.slice(-4)}</span></td>
+    <td><span class="tag tag-blue">Hyperliquid</span></td>
+    <td><span class="score">${d.score}</span></td>
+    <td>${riskTag(d.risk)}</td>
+    <td class="num">${d.cur}/${d.max}</td>
+    <td class="num">${d.total}</td>
+    <td class="num">${d.aum}</td>
+    <td>${d.ratio}</td>
+    <td class="num">${d.days}</td>
+    <td>${d.last}</td>
+    <td>${d.tags.map(t=>'<span class="tag tag-gray">'+t+'</span>').join('')}</td>
+    <td><div class="switch ${d.status?'on':''}" onclick="this.classList.toggle('on')"></div></td>
+    <td><div class="switch ${d.display?'on':''}" onclick="this.classList.toggle('on')"></div></td>
+</tr>`).join('');
+
+function openModal(){ document.getElementById('overlay').classList.add('show'); document.getElementById('modal').classList.add('show'); }
+function closeModal(){ document.getElementById('overlay').classList.remove('show'); document.getElementById('modal').classList.remove('show'); }
+</script>
+</body>
+</html>

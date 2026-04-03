@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>聪明钱带单员详情 — 0x8e09...0c9</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--xt-primary:#BAFF00;--xt-bg:#000;--xt-surface:#121212;--xt-border:#2B3139;--xt-text:#FFF;--xt-text2:#848E9C;--xt-green:#2EBD85;--xt-red:#D94D5B}
+body{font-family:'Inter','Roboto',-apple-system,sans-serif;background:var(--xt-bg);color:var(--xt-text);max-width:1000px;margin:0 auto;-webkit-font-smoothing:antialiased;padding-bottom:100px}
+
+/* Header */
+.header{display:flex;align-items:center;padding:12px 16px;gap:12px;border-bottom:1px solid var(--xt-border);position:sticky;top:0;background:var(--xt-bg);z-index:100}
+.back{font-size:20px;cursor:pointer;color:var(--xt-text2);text-decoration:none}
+.header-tabs{display:flex;gap:16px;margin-left:8px}
+.header-tab{font-size:14px;color:var(--xt-text2);cursor:pointer;padding-bottom:4px}
+.header-tab.active{color:var(--xt-text);font-weight:600;border-bottom:2px solid var(--xt-primary)}
+
+/* Profile */
+.profile{padding:24px 16px;display:flex;gap:16px;align-items:flex-start}
+.jazzicon-lg{width:56px;height:56px;border-radius:50%;background:conic-gradient(from 45deg,#6366f1,#06b6d4,#BAFF00,#f59e0b,#6366f1);flex-shrink:0}
+.profile-info{flex:1}
+.profile-name{font-size:18px;font-weight:700;margin-bottom:4px}
+.profile-meta{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--xt-text2);margin-bottom:8px}
+.profile-meta .val{color:var(--xt-text);font-weight:500}
+.profile-desc{font-size:12px;color:var(--xt-text2);margin-bottom:8px}
+.profile-tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(186,255,0,.08);color:var(--xt-primary)}
+.score-lg{background:var(--xt-surface);border:1px solid var(--xt-border);border-radius:12px;padding:12px 16px;text-align:center;min-width:80px}
+.score-num{font-size:28px;font-weight:800;color:var(--xt-primary)}
+.score-label{font-size:10px;color:var(--xt-text2);margin-top:2px}
+.risk-badge{display:inline-block;background:rgba(46,189,133,.15);color:var(--xt-green);font-size:10px;font-weight:600;padding:2px 8px;border-radius:50px;margin-top:4px}
+
+/* Action buttons */
+.action-row{padding:0 16px 16px;display:flex;gap:12px}
+.btn-primary{flex:1;background:var(--xt-primary);color:#000;border:none;border-radius:50px;padding:14px 0;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-primary:hover{filter:brightness(1.1)}
+.btn-primary:active{transform:scale(.97)}
+.btn-outline{background:transparent;border:1px solid var(--xt-border);color:var(--xt-text);border-radius:50px;padding:14px 20px;font-size:13px;cursor:pointer}
+.btn-outline:hover{border-color:var(--xt-text2)}
+
+/* Stats Grid */
+.stats-section{padding:0 16px}
+.stats-title{font-size:14px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.period-tabs{display:flex;gap:8px}
+.period-tab{font-size:11px;color:var(--xt-text2);cursor:pointer;padding:4px 10px;border-radius:50px;border:1px solid var(--xt-border)}
+.period-tab.active{color:var(--xt-primary);border-color:var(--xt-primary);background:rgba(186,255,0,.08)}
+
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--xt-border);border:1px solid var(--xt-border);border-radius:12px;overflow:hidden;margin-bottom:24px}
+@media(max-width:600px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+.stat-cell{background:var(--xt-surface);padding:14px 12px}
+.stat-cell .label{font-size:11px;color:var(--xt-text2);margin-bottom:4px}
+.stat-cell .value{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+.stat-cell .value.green{color:var(--xt-green)}
+.stat-cell .value.red{color:var(--xt-red)}
+.stat-cell .value.primary{color:var(--xt-primary)}
+
+/* Radar Chart */
+.radar-section{padding:0 16px;margin-bottom:24px}
+.radar-card{background:var(--xt-surface);border:1px solid var(--xt-border);border-radius:14px;padding:20px;display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+@media(max-width:600px){.radar-card{flex-direction:column}}
+.radar-chart{width:220px;height:220px;flex-shrink:0}
+.radar-scores{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px 24px}
+.radar-item{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.radar-item .dim{color:var(--xt-text2)}
+.radar-item .bar-wrap{width:60px;height:4px;background:var(--xt-border);border-radius:2px;margin:0 8px}
+.radar-item .bar{height:100%;border-radius:2px;background:var(--xt-primary)}
+.radar-item .num{font-weight:600;font-variant-numeric:tabular-nums;min-width:24px;text-align:right}
+
+/* Chart placeholder */
+.chart-card{background:var(--xt-surface);border:1px solid var(--xt-border);border-radius:14px;padding:20px;margin-bottom:24px}
+.chart-placeholder{height:180px;display:flex;align-items:flex-end;gap:2px;padding-top:20px}
+.chart-bar{flex:1;background:var(--xt-primary);border-radius:2px 2px 0 0;opacity:.7;transition:all .2s}
+.chart-bar:hover{opacity:1}
+.chart-bar.red{background:var(--xt-red)}
+
+/* Positions */
+.positions-section{padding:0 16px;margin-bottom:24px}
+.pos-table{width:100%;border-collapse:collapse}
+.pos-table th{text-align:left;font-size:11px;color:var(--xt-text2);font-weight:500;padding:8px 0;border-bottom:1px solid var(--xt-border)}
+.pos-table td{font-size:13px;padding:10px 0;border-bottom:1px solid var(--xt-border);font-variant-numeric:tabular-nums}
+.pos-table .long{color:var(--xt-green)}
+.pos-table .short{color:var(--xt-red)}
+.chain-link{color:var(--xt-primary);font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-top:8px}
+
+/* Detail Tabs */
+.detail-tabs{display:flex;gap:20px;padding:0 16px;margin-bottom:16px;border-bottom:1px solid var(--xt-border)}
+.detail-tab{font-size:13px;color:var(--xt-text2);padding:10px 0;cursor:pointer;border-bottom:2px solid transparent}
+.detail-tab.active{color:var(--xt-text);font-weight:600;border-bottom-color:var(--xt-primary)}
+
+/* Fixed Bottom */
+.fixed-bottom{position:fixed;bottom:0;left:0;right:0;background:var(--xt-bg);border-top:1px solid var(--xt-border);padding:12px 16px;display:flex;gap:12px;max-width:1000px;margin:0 auto;z-index:100}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <a class="back" href="smart-money-tab.html">←</a>
+  <div class="header-tabs">
+    <span class="header-tab active">合约</span>
+    <span class="header-tab">现货</span>
+  </div>
+</div>
+
+<!-- Profile -->
+<div class="profile">
+  <div class="jazzicon-lg"></div>
+  <div class="profile-info">
+    <div class="profile-name">0x8e09...0c9</div>
+    <div class="profile-meta">
+      <span>累计跟单人数 <span class="val">128</span></span>
+      <span>当前跟随 <span class="val">4/100</span></span>
+      <span>分润比例 <span class="val">15.00%</span></span>
+    </div>
+    <div class="profile-desc">链上活跃 245 天 · Hyperliquid 永续合约</div>
+    <div class="profile-tags">
+      <span class="tag" style="background:rgba(255,255,255,.08);color:var(--xt-text)">Hyperliquid</span>
+      <span class="tag" style="background:rgba(46,189,133,.08);color:var(--xt-green)">BTC主力</span>
+      <span class="tag">趋势跟踪</span>
+      <span class="tag">中长线</span>
+    </div>
+  </div>
+  <div class="score-lg">
+    <div class="risk-badge" style="font-size:14px;padding:4px 12px">🟢 低风险</div>
+    <div class="score-label" style="margin-top:6px">风险等级</div>
+  </div>
+</div>
+
+<!-- Action Row -->
+<div class="action-row">
+  <button class="btn-outline">↗ 链上验证</button>
+  <button class="btn-outline">🔗 分享</button>
+  <button class="btn-primary" onclick="location.href='copy-settings.html'" style="flex:2">立即跟单</button>
+</div>
+
+<!-- About Section -->
+<div style="padding:0 16px 16px">
+  <div style="background:var(--xt-surface);border:1px solid var(--xt-border);border-radius:14px;padding:16px 20px">
+    <div style="font-size:13px;font-weight:600;margin-bottom:8px">关于</div>
+    <div style="font-size:12px;color:var(--xt-text2);line-height:1.7;margin-bottom:12px">
+      该地址活跃于 Hyperliquid 永续合约市场，以 BTC/ETH 为主力交易对，偏好趋势跟踪策略，平均持仓约 18 小时。近 30 天胜率 87.50%，最大回撤仅 3.44%，风格稳健。
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--xt-border)">
+      <div>
+        <div style="font-size:11px;color:var(--xt-text2);margin-bottom:2px">数据来源</div>
+        <div style="font-size:12px;color:var(--xt-text)">Hyperliquid L1 · 链上可验证 · 每 2s 刷新</div>
+      </div>
+      <a href="#" style="font-size:12px;color:var(--xt-primary);text-decoration:none;white-space:nowrap">↗ 在 Hyperliquid 上查看</a>
+    </div>
+  </div>
+</div>
+
+<!-- Stats Grid (BitMEX style 2x4) -->
+<div style="padding:0 16px 16px">
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--xt-border);border:1px solid var(--xt-border);border-radius:12px;overflow:hidden">
+    <div style="background:var(--xt-surface);padding:12px"><div style="font-size:11px;color:var(--xt-text2);margin-bottom:4px">胜率</div><div style="font-size:15px;font-weight:700">87.50%</div></div>
+    <div style="background:var(--xt-surface);padding:12px"><div style="font-size:11px;color:var(--xt-text2);margin-bottom:4px">首次交易</div><div style="font-size:15px;font-weight:700">2025.08</div></div>
+    <div style="background:var(--xt-surface);padding:12px"><div style="font-size:11px;color:var(--xt-text2);margin-bottom:4px">跟单人数</div><div style="font-size:15px;font-weight:700">4/100</div></div>
+    <div style="background:var(--xt-surface);padding:12px"><div style="font-size:11px;color:var(--xt-text2);margin-bottom:4px">AUM</div><div style="font-size:15px;font-weight:700">$2M</div></div>
+    <div style="background:var(--xt-surface);padding:12px"><div style="font-size:11px;color:var(--xt-text2);margin-bottom:4px">历史最大回撤</div><div style="font-size:15px;font-weight:700">3.44%</div></div>
+    <div style="background:var(--xt-surface);padding:12px"><div style="font-size:11px;color:var(--xt-text2);margin-bottom:4px">平均持仓</div><div style="font-size:15px;font-weight:700">18h</div></div>
+    <div style="background:var(--xt-surface);padding:12px"><div style="font-size:11px;color:var(--xt-text2);margin-bottom:4px">30日交易频次</div><div style="font-size:15px;font-weight:700">1.8次/天</div></div>
+    <div style="background:var(--xt-surface);padding:12px"><div style="font-size:11px;color:var(--xt-text2);margin-bottom:4px">分润比例</div><div style="font-size:15px;font-weight:700">15%</div></div>
+  </div>
+</div>
+
+<!-- Detail Tabs -->
+<div class="detail-tabs">
+  <div class="detail-tab active" onclick="switchDetail(0,this)">带单数据</div>
+  <div class="detail-tab" onclick="switchDetail(1,this)">当前持仓</div>
+  <div class="detail-tab" onclick="switchDetail(2,this)">历史带单</div>
+  <div class="detail-tab" onclick="switchDetail(3,this)">跟随者</div>
+</div>
+
+<!-- Panel: 带单数据 -->
+<div id="panel0">
+
+<!-- Stats -->
+<div class="stats-section">
+  <div class="stats-title">
+    <span>绩效概览</span>
+    <div class="period-tabs">
+      <span class="period-tab">7天</span>
+      <span class="period-tab active">30天</span>
+      <span class="period-tab">90天</span>
+      <span class="period-tab">全部</span>
+    </div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-cell"><div class="label">收益率</div><div class="value primary">+177.48%</div></div>
+    <div class="stat-cell"><div class="label">总收益</div><div class="value green">+$1,939,226</div></div>
+    <div class="stat-cell"><div class="label">跟单者收益</div><div class="value green">+$12,450</div></div>
+    <div class="stat-cell"><div class="label">历史最大回撤</div><div class="value">3.44%</div></div>
+    <div class="stat-cell"><div class="label">胜率</div><div class="value">87.50%</div></div>
+    <div class="stat-cell"><div class="label">总带单次数</div><div class="value">48</div></div>
+    <div class="stat-cell"><div class="label">盈亏比</div><div class="value">3.2</div></div>
+    <div class="stat-cell"><div class="label">平均持仓时间</div><div class="value">18h</div></div>
+    <div class="stat-cell"><div class="label">带单频次/天</div><div class="value">1.8</div></div>
+    <div class="stat-cell"><div class="label">AUM</div><div class="value">$2M</div></div>
+    <div class="stat-cell"><div class="label">活跃天数</div><div class="value">245</div></div>
+    <div class="stat-cell"><div class="label">最近交易</div><div class="value" style="font-size:12px">04-02 08:14</div></div>
+  </div>
+</div>
+
+
+<!-- Chart: Cumulative PnL -->
+<div class="stats-section">
+  <div class="stats-title"><span>累计收益</span></div>
+  <div class="chart-card">
+    <div class="chart-placeholder" id="pnlChart"></div>
+  </div>
+</div>
+
+</div>
+
+<!-- Panel: 当前持仓 -->
+<div id="panel1" style="display:none">
+<div class="positions-section">
+  <div class="stats-title"><span>当前持仓（链上实时）</span></div>
+  <table class="pos-table">
+    <thead><tr><th>合约</th><th>方向</th><th>杠杆</th><th>数量</th><th>开仓价</th><th>未实现盈亏</th></tr></thead>
+    <tbody>
+      <tr><td>BTC-PERP</td><td class="long">多</td><td>10x</td><td>2.5 BTC</td><td>$64,280</td><td class="long">+$5,612</td></tr>
+      <tr><td>ETH-PERP</td><td class="long">多</td><td>5x</td><td>45 ETH</td><td>$1,985</td><td class="long">+$2,880</td></tr>
+      <tr><td>SOL-PERP</td><td class="short">空</td><td>3x</td><td>800 SOL</td><td>$82.50</td><td class="short">-$480</td></tr>
+    </tbody>
+  </table>
+  <a class="chain-link" href="#">↗ 在 Hyperliquid 上查看完整链上数据</a>
+</div>
+</div>
+
+<!-- Panel: 历史带单 -->
+<div id="panel2" style="display:none">
+<div class="positions-section">
+  <div class="stats-title"><span>历史交易</span></div>
+  <table class="pos-table">
+    <thead><tr><th>合约</th><th>方向</th><th>杠杆</th><th>盈亏</th><th>持仓时长</th><th>时间</th></tr></thead>
+    <tbody>
+      <tr><td>BTC-PERP</td><td class="long">多</td><td>10x</td><td class="long">+$18,420</td><td>14h 32m</td><td>04-01</td></tr>
+      <tr><td>ETH-PERP</td><td class="short">空</td><td>5x</td><td class="long">+$3,210</td><td>6h 15m</td><td>03-30</td></tr>
+      <tr><td>SOL-PERP</td><td class="long">多</td><td>8x</td><td class="red">-$1,560</td><td>2h 08m</td><td>03-29</td></tr>
+      <tr><td>BTC-PERP</td><td class="long">多</td><td>10x</td><td class="long">+$42,100</td><td>28h 50m</td><td>03-27</td></tr>
+      <tr><td>DOGE-PERP</td><td class="long">多</td><td>15x</td><td class="long">+$8,900</td><td>4h 22m</td><td>03-25</td></tr>
+    </tbody>
+  </table>
+</div>
+</div>
+
+<!-- Panel: 跟随者 -->
+<div id="panel3" style="display:none">
+<div class="positions-section" style="text-align:center;padding:60px 16px;color:var(--xt-text2)">
+  当前 4 名跟随者<br><br>
+  <span style="font-size:12px">跟随者列表需登录后查看</span>
+</div>
+</div>
+
+<!-- Fixed Bottom -->
+<div class="fixed-bottom">
+  <button class="btn-outline" style="flex:1">↗ 链上验证</button>
+  <button class="btn-primary" onclick="location.href='copy-settings.html'" style="flex:2">立即跟单</button>
+</div>
+
+<script>
+function switchDetail(idx,el){
+  document.querySelectorAll('.detail-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  for(let i=0;i<4;i++){document.getElementById('panel'+i).style.display=i===idx?'block':'none'}
+}
+
+// PnL Chart
+(function(){
+  const chart=document.getElementById('pnlChart');
+  const bars=30;
+  let html='';
+  let cum=0;
+  for(let i=0;i<bars;i++){
+    const change=(Math.random()-0.3)*15;
+    cum+=change;
+    const h=Math.max(5,Math.abs(cum)/3+10);
+    const cls=cum>=0?'':'red';
+    html+=`<div class="chart-bar ${cls}" style="height:${h}%"></div>`;
+  }
+  chart.innerHTML=html;
+})();
+</script>
+</body>
+</html>

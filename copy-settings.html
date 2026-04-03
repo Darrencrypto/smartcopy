@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>跟单设置 — 0x8e09...0c9</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--xt-primary:#BAFF00;--xt-bg:#000;--xt-surface:#121212;--xt-border:#2B3139;--xt-text:#FFF;--xt-text2:#848E9C;--xt-green:#2EBD85;--xt-red:#D94D5B}
+body{font-family:'Inter','Roboto',-apple-system,sans-serif;background:rgba(0,0,0,.6);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;-webkit-font-smoothing:antialiased}
+
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:99}
+.modal{position:relative;z-index:100;width:100%;max-width:480px;background:var(--xt-surface);border:1px solid var(--xt-border);border-radius:20px;overflow:hidden;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px}
+.modal-title{font-size:18px;font-weight:700}
+.modal-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--xt-border);background:none;color:var(--xt-text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{border-color:var(--xt-text2)}
+
+/* Trader info */
+.trader-info{display:flex;align-items:center;gap:12px;padding:0 24px 16px}
+.ji{width:36px;height:36px;border-radius:50%;background:conic-gradient(from 45deg,#6366f1,#06b6d4,#BAFF00,#f59e0b,#6366f1);flex-shrink:0}
+.trader-info .name{font-size:14px;font-weight:600}
+.trader-info .meta{font-size:11px;color:var(--xt-text2);display:flex;gap:6px;align-items:center;margin-top:2px}
+.score-sm{background:rgba(186,255,0,.12);color:var(--xt-primary);padding:1px 6px;border-radius:4px;font-weight:600;font-size:10px}
+
+/* Divider */
+.divider{height:1px;background:var(--xt-border);margin:0 24px}
+
+/* Mode Tabs */
+.mode-tabs{display:flex;padding:16px 24px 0;gap:0}
+.mode-tab{flex:1;text-align:center;padding:10px 0;font-size:14px;color:var(--xt-text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.mode-tab.active{color:var(--xt-text);font-weight:600;border-bottom-color:var(--xt-primary)}
+.mode-desc{padding:8px 24px 16px;font-size:12px;color:var(--xt-text2);line-height:1.5}
+
+/* Form */
+.form-section{padding:0 24px 16px}
+.form-label{font-size:12px;color:var(--xt-text2);margin-bottom:6px;display:flex;justify-content:space-between}
+.input-row{display:flex;gap:8px;margin-bottom:16px}
+.input-wrap{flex:1;display:flex;align-items:center;background:var(--xt-bg);border:1px solid var(--xt-border);border-radius:8px;padding:0 12px;transition:border-color .2s}
+.input-wrap:focus-within{border-color:var(--xt-primary)}
+.input-wrap input{flex:1;background:none;border:none;color:var(--xt-text);font-size:14px;padding:12px 0;outline:none;font-variant-numeric:tabular-nums}
+.input-wrap input::placeholder{color:#555}
+.input-wrap .unit{color:var(--xt-text2);font-size:12px;margin-left:4px}
+.btn-transfer{background:var(--xt-primary);color:#000;border:none;border-radius:8px;padding:12px 16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn-transfer:hover{filter:brightness(1.1)}
+.btn-transfer:active{transform:scale(.97)}
+.avail{font-size:11px;color:var(--xt-text2);margin-top:-10px;margin-bottom:14px}
+
+/* Advanced toggle */
+.advanced-toggle{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;cursor:pointer;border-top:1px solid var(--xt-border);border-bottom:1px solid var(--xt-border)}
+.advanced-toggle span{font-size:13px;color:var(--xt-text2)}
+.advanced-toggle .arrow{color:var(--xt-text2);font-size:14px;transition:transform .2s}
+.advanced-toggle .arrow.open{transform:rotate(180deg)}
+
+/* Advanced panel */
+.advanced-panel{padding:16px 24px;display:none;border-bottom:1px solid var(--xt-border)}
+.adv-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.adv-row:last-child{margin-bottom:0}
+.adv-label{font-size:13px;color:var(--xt-text2)}
+.adv-input{width:120px;background:var(--xt-bg);border:1px solid var(--xt-border);border-radius:6px;padding:8px 10px;color:var(--xt-text);font-size:13px;text-align:right;outline:none}
+.adv-input:focus{border-color:var(--xt-primary)}
+
+/* Switch */
+.switch{position:relative;width:44px;height:24px;background:var(--xt-border);border-radius:12px;cursor:pointer;transition:background .2s}
+.switch.on{background:var(--xt-primary)}
+.switch::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:transform .2s}
+.switch.on::after{transform:translateX(20px)}
+
+/* Market chips */
+.market-select{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.market-chip{font-size:11px;padding:4px 10px;border:1px solid var(--xt-border);border-radius:50px;color:var(--xt-text2);cursor:pointer;transition:all .15s}
+.market-chip.active{border-color:var(--xt-primary);color:var(--xt-primary);background:rgba(186,255,0,.06)}
+.market-chip:hover{border-color:var(--xt-text2)}
+
+/* Agreement */
+.agreement{padding:16px 24px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--xt-text2)}
+.checkbox{width:16px;height:16px;border:1px solid var(--xt-border);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.checkbox.checked{background:var(--xt-primary);border-color:var(--xt-primary)}
+.checkbox.checked::after{content:'✓';font-size:11px;color:#000;font-weight:700}
+.agreement a{color:var(--xt-primary);text-decoration:none}
+
+/* Submit */
+.submit-area{padding:12px 24px 24px}
+.btn-submit{width:100%;background:var(--xt-primary);color:#000;border:none;border-radius:50px;padding:16px 0;font-size:16px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-submit:hover{filter:brightness(1.1)}
+.btn-submit:active{transform:scale(.98)}
+.btn-submit:disabled{background:#333;color:#666;cursor:not-allowed}
+
+/* Toast */
+.toast{position:fixed;top:40px;left:50%;transform:translateX(-50%);background:var(--xt-green);color:#000;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="modal-backdrop" onclick="location.href='smart-money-detail.html'"></div>
+
+<div class="modal">
+  <!-- Header -->
+  <div class="modal-header">
+    <span class="modal-title">跟单</span>
+    <button class="modal-close" onclick="location.href='smart-money-detail.html'">✕</button>
+  </div>
+
+  <!-- Trader Info -->
+  <div class="trader-info">
+    <div class="ji"></div>
+    <div>
+      <div class="name">0x8e09...0c9</div>
+      <div class="meta">
+        <span style="background:rgba(46,189,133,.12);color:#2EBD85;padding:1px 6px;border-radius:4px;font-weight:600;font-size:10px">🟢 低风险</span>
+        <span>4/100</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Mode Tabs -->
+  <div class="mode-tabs">
+    <div class="mode-tab active" onclick="switchMode(0)">智能跟单</div>
+    <div class="mode-tab" onclick="switchMode(1)">自定义跟单</div>
+  </div>
+
+  <!-- Smart Copy Panel -->
+  <div id="modePanel0">
+    <div class="mode-desc">与您跟随的带单员使用相同的资金比例下单。您只需要决定跟随该带单员的跟单金额。</div>
+    <div class="form-section">
+      <div class="form-label"><span>跟单金额</span></div>
+      <div class="input-row">
+        <div class="input-wrap">
+          <input type="text" id="smartAmount" placeholder="最低 50" value="1000">
+          <span class="unit">USDT</span>
+        </div>
+        <button class="btn-transfer">划转</button>
+      </div>
+      <div class="avail">现货账户可用: 12,580.00 USDT</div>
+    </div>
+  </div>
+
+  <!-- Custom Copy Panel -->
+  <div id="modePanel1" style="display:none">
+    <div class="mode-desc">您可以自定义每笔跟单的保证金。将使用合约账户资金进行跟单。</div>
+    <div class="form-section">
+      <div class="form-label"><span>跟单方式</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <div class="market-chip active" onclick="selectCustomMode(this)">固定保证金</div>
+        <div class="market-chip" onclick="selectCustomMode(this)">按倍率跟单</div>
+      </div>
+      <div class="form-label"><span>每笔保证金</span></div>
+      <div class="input-row">
+        <div class="input-wrap">
+          <input type="text" placeholder="10 - 100,000" value="200">
+          <span class="unit">USDT</span>
+        </div>
+        <button class="btn-transfer">划转</button>
+      </div>
+      <div class="avail">合约账户可用: 8,320.50 USDT</div>
+    </div>
+  </div>
+
+  <!-- Advanced Settings -->
+  <div class="advanced-toggle" onclick="toggleAdvanced()">
+    <span>高级设置</span>
+    <span class="arrow" id="advArrow">▼</span>
+  </div>
+  <div class="advanced-panel" id="advPanel">
+    <div class="adv-row">
+      <span class="adv-label">跟单止损</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input class="adv-input" placeholder="不设置" value="500"> <span style="font-size:12px;color:var(--xt-text2)">USDT</span>
+      </div>
+    </div>
+    <div class="adv-row">
+      <span class="adv-label">跟单市场</span>
+      <span style="font-size:13px;color:var(--xt-primary);cursor:pointer" onclick="toggleMarkets()">选择市场 ></span>
+    </div>
+    <div class="market-select" id="marketChips" style="display:none">
+      <div class="market-chip active" onclick="this.classList.toggle('active')">全选</div>
+      <div class="market-chip active" onclick="this.classList.toggle('active')">BTCUSDT</div>
+      <div class="market-chip active" onclick="this.classList.toggle('active')">ETHUSDT</div>
+      <div class="market-chip" onclick="this.classList.toggle('active')">SOLUSDT</div>
+      <div class="market-chip" onclick="this.classList.toggle('active')">XRPUSDT</div>
+      <div class="market-chip" onclick="this.classList.toggle('active')">DOGEUSDT</div>
+      <div class="market-chip" onclick="this.classList.toggle('active')">ADAUSDT</div>
+    </div>
+    <div class="adv-row" style="margin-top:14px">
+      <span class="adv-label">跟单后立即复制仓位</span>
+      <div class="switch on" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="adv-row" id="smartOnlyRow">
+      <span class="adv-label">自动跟单新增市场</span>
+      <div class="switch" onclick="this.classList.toggle('on')"></div>
+    </div>
+  </div>
+
+  <!-- Agreement -->
+  <div class="agreement">
+    <div class="checkbox checked" id="agreeBox" onclick="toggleAgree()"></div>
+    <span>已阅读并同意 <a href="#">跟单用户协议</a></span>
+  </div>
+
+  <!-- Fee note -->
+  <div style="padding:0 24px 8px;font-size:11px;color:var(--xt-text2)">
+    分润说明：盈利部分收取 15% 平台服务费
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-area">
+    <button class="btn-submit" id="submitBtn" onclick="submitCopy()">立即跟单</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">跟单设置成功！</div>
+
+<script>
+let advOpen=false,marketsOpen=false,agreed=true,currentMode=0;
+
+function switchMode(idx){
+  currentMode=idx;
+  document.querySelectorAll('.mode-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  document.getElementById('modePanel0').style.display=idx===0?'block':'none';
+  document.getElementById('modePanel1').style.display=idx===1?'block':'none';
+}
+
+function toggleAdvanced(){
+  advOpen=!advOpen;
+  document.getElementById('advPanel').style.display=advOpen?'block':'none';
+  document.getElementById('advArrow').classList.toggle('open',advOpen);
+}
+
+function toggleMarkets(){
+  marketsOpen=!marketsOpen;
+  document.getElementById('marketChips').style.display=marketsOpen?'flex':'none';
+}
+
+function selectCustomMode(el){
+  el.parentElement.querySelectorAll('.market-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function toggleAgree(){
+  agreed=!agreed;
+  document.getElementById('agreeBox').classList.toggle('checked',agreed);
+  document.getElementById('submitBtn').disabled=!agreed;
+}
+
+function submitCopy(){
+  if(!agreed)return;
+  const toast=document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(()=>{toast.classList.remove('show')},2000);
+  setTimeout(()=>{location.href='smart-money-detail.html'},2200);
+}
+</script>
+</body>
+</html>

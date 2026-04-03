@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>XT 聪明钱带单员 — 原型导航</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--xt-primary:#BAFF00;--xt-bg:#000;--xt-surface:#121212;--xt-border:#2B3139;--xt-text:#FFF;--xt-text2:#848E9C}
+body{font-family:'Inter','Roboto',-apple-system,sans-serif;background:var(--xt-bg);color:var(--xt-text);min-height:100vh;padding:24px 16px}
+h1{font-size:24px;font-weight:700;margin-bottom:8px}
+.subtitle{color:var(--xt-text2);font-size:14px;margin-bottom:32px}
+.badge{display:inline-block;background:var(--xt-primary);color:#000;font-size:11px;font-weight:600;padding:2px 8px;border-radius:50px;margin-left:8px;vertical-align:middle}
+.grid{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--xt-surface);border:1px solid var(--xt-border);border-radius:16px;padding:24px;text-decoration:none;color:var(--xt-text);transition:all .2s}
+.card:hover{border-color:var(--xt-primary);transform:translateY(-2px)}
+.card:active{transform:scale(.98)}
+.card h2{font-size:16px;font-weight:600;margin-bottom:8px}
+.card p{color:var(--xt-text2);font-size:13px;line-height:1.5}
+.card .tag{display:inline-block;background:rgba(186,255,0,.1);color:var(--xt-primary);font-size:11px;padding:2px 8px;border-radius:4px;margin-top:12px}
+.footer{margin-top:40px;text-align:center;color:var(--xt-text2);font-size:12px}
+</style>
+</head>
+<body>
+<h1>聪明钱带单员<span class="badge">Prototype</span></h1>
+<p class="subtitle">XT 合约跟单 — Hyperliquid 聪明钱带单员交互原型</p>
+
+<div class="grid">
+  <a href="smart-money-tab.html" class="card">
+    <h2>1. 合约跟单主页 — 聪明钱带单员 Tab</h2>
+    <p>Tab 栏：精英带单员 | 聪明钱带单员 | 全部带单员<br>卡片式布局：追求收益 / 稳健交易 / 巨鲸动向，每板块 3 张卡片</p>
+    <span class="tag">核心页面</span>
+  </a>
+
+  <a href="smart-money-detail.html" class="card">
+    <h2>2. 聪明钱带单员详情页</h2>
+    <p>AI 评分雷达图 + 当前持仓快照 + 累计收益曲线 + 带单数据 + 跟单按钮</p>
+    <span class="tag">详情页</span>
+  </a>
+
+  <a href="copy-settings.html" class="card">
+    <h2>3. 跟单设置弹窗</h2>
+    <p>智能跟单 / 自定义跟单切换 + 跟单金额 + 高级设置（止损/市场/复制仓位）</p>
+    <span class="tag">弹窗交互</span>
+  </a>
+
+  <a href="admin-wallet-list.html" class="card">
+    <h2>4. 后台 — 聪明钱带单员列表</h2>
+    <p>钱包池管理：地址/评分/风险等级/带单规模/收益/状态/推荐 + 手动添加钱包</p>
+    <span class="tag" style="background:rgba(24,144,255,.1);color:#1890ff">后台页面</span>
+  </a>
+
+  <a href="admin-signal-log.html" class="card">
+    <h2>5. 后台 — 聪明钱信号日志</h2>
+    <p>信号生成和执行记录：信号类型/合约/状态/延迟/触发跟单数，可展开查看跟单订单详情</p>
+    <span class="tag" style="background:rgba(24,144,255,.1);color:#1890ff">后台页面</span>
+  </a>
+
+  <a href="admin-config.html" class="card">
+    <h2>6. 后台 — 聪明钱全局配置</h2>
+    <p>功能开关 / 入池条件（活跃天数/交易次数/总资产/评分）/ 跟单限制 / 风控阈值 / 系统参数</p>
+    <span class="tag" style="background:rgba(24,144,255,.1);color:#1890ff">后台页面</span>
+  </a>
+</div>
+
+<p class="footer">XT.COM Prototype · 基于 Hyperliquid 聪明钱 PRD 生成</p>
+</body>
+</html>

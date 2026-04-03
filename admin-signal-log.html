@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聪明钱信号日志</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            font-size: 13px; color: #333; background: #f0f2f5;
+        }
+        .top-nav {
+            height: 40px; background: #1d1e23; display: flex; align-items: center;
+            padding: 0 12px; color: #ccc; font-size: 12px;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+        }
+        .top-nav .logo { display: flex; align-items: center; margin-right: 8px; }
+        .top-nav .logo span { font-weight: bold; color: #BAFF00; font-size: 14px; }
+        .top-nav .nav-items { display: flex; align-items: center; gap: 0; flex: 1; overflow: hidden; }
+        .top-nav .nav-items a { color: #aaa; text-decoration: none; padding: 4px 7px; white-space: nowrap; font-size: 12px; }
+        .top-nav .nav-items a:hover { color: #fff; }
+        .top-nav .nav-items a.active { color: #BAFF00; }
+        .top-nav .nav-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+        .top-nav .nav-right .avatar { width: 24px; height: 24px; border-radius: 50%; background: #444; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; }
+
+        .sidebar {
+            width: 160px; background: #242e38; position: fixed; top: 40px; left: 0; bottom: 0;
+            z-index: 999; overflow-y: auto; color: #bbb;
+        }
+        .sidebar .sidebar-title { padding: 14px 12px 10px; font-size: 13px; font-weight: 600; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .sidebar .menu-item { display: flex; align-items: center; padding: 9px 16px; color: #bbb; font-size: 12px; cursor: pointer; transition: background 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sidebar .menu-item:hover { background: rgba(255,255,255,0.05); }
+        .sidebar .menu-item.active { color: #BAFF00; background: rgba(186, 255, 0, 0.08); }
+        .sidebar .menu-group-title { padding: 10px 12px 6px; font-size: 11px; color: #666; letter-spacing: 0.5px; }
+
+        .main-content { margin-left: 160px; margin-top: 40px; padding: 16px 20px; min-height: calc(100vh - 40px); }
+        .page-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 16px; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+        .stat-card { background: #fff; border-radius: 4px; padding: 14px 16px; border-left: 3px solid #409eff; }
+        .stat-card .label { font-size: 12px; color: #909399; margin-bottom: 4px; }
+        .stat-card .value { font-size: 22px; font-weight: 700; color: #303133; }
+        .stat-card .sub { font-size: 11px; color: #909399; margin-top: 2px; }
+        .stat-card.green { border-left-color: #67c23a; }
+        .stat-card.orange { border-left-color: #e6a23c; }
+        .stat-card.red { border-left-color: #f56c6c; }
+
+        .filter-area { background: #fff; border-radius: 4px; padding: 16px; margin-bottom: 12px; }
+        .filter-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .filter-label { font-size: 12px; color: #606266; white-space: nowrap; }
+        .filter-select {
+            height: 32px; padding: 0 28px 0 10px; border: 1px solid #dcdfe6; border-radius: 4px;
+            font-size: 13px; color: #606266; background: #fff; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23C0C4CC'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 10px center; min-width: 120px; cursor: pointer;
+        }
+        .filter-input { height: 32px; padding: 0 10px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 13px; color: #606266; min-width: 160px; }
+        .filter-input::placeholder { color: #C0C4CC; }
+        .filter-input:focus { border-color: #409eff; outline: none; }
+        .filter-right { margin-left: auto; display: flex; gap: 8px; }
+
+        .btn { height: 32px; padding: 0 16px; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
+        .btn:hover { opacity: 0.85; }
+        .btn-blue { background: #409eff; color: #fff; }
+        .btn-orange { background: #e6a23c; color: #fff; }
+
+        .table-wrapper { background: #fff; border-radius: 4px; overflow-x: auto; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 1400px; }
+        .data-table thead { background: #f5f7fa; }
+        .data-table th { padding: 10px 8px; text-align: left; font-weight: 600; color: #909399; border-bottom: 1px solid #ebeef5; white-space: nowrap; font-size: 12px; }
+        .data-table td { padding: 10px 8px; border-bottom: 1px solid #ebeef5; color: #606266; vertical-align: middle; font-size: 12px; white-space: nowrap; }
+        .data-table tbody tr:hover { background: #f5f7fa; }
+
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; }
+        .tag-blue { background: #ecf5ff; color: #409eff; border: 1px solid #d9ecff; }
+        .tag-green { background: #f0f9eb; color: #67c23a; border: 1px solid #e1f3d8; }
+        .tag-orange { background: #fdf6ec; color: #e6a23c; border: 1px solid #faecd8; }
+        .tag-red { background: #fef0f0; color: #f56c6c; border: 1px solid #fde2e2; }
+        .tag-gray { background: #f4f4f5; color: #909399; border: 1px solid #e9e9eb; }
+
+        .op-link { color: #409eff; text-decoration: none; cursor: pointer; font-size: 12px; }
+        .op-link:hover { text-decoration: underline; }
+        .addr { font-family: 'SF Mono','Menlo','Consolas',monospace; color: #409eff; cursor: pointer; font-size: 12px; }
+        .addr:hover { text-decoration: underline; }
+        .green { color: #67c23a; }
+        .red { color: #f56c6c; }
+        .num { font-variant-numeric: tabular-nums; }
+
+        .detail-row { display: none; }
+        .detail-row.show { display: table-row; }
+        .detail-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .detail-table th { background: #f0f2f5; padding: 8px 10px; font-size: 11px; font-weight: 600; color: #909399; text-align: left; }
+        .detail-table td { padding: 8px 10px; border-bottom: 1px solid #ebeef5; color: #606266; }
+
+        .pagination { display: flex; align-items: center; justify-content: flex-end; padding: 10px 12px; gap: 4px; font-size: 12px; color: #606266; }
+        .pg-btn { min-width: 28px; height: 28px; border: 1px solid #dcdfe6; border-radius: 4px; background: #fff; color: #606266; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .pg-btn.active { background: #409eff; color: #fff; border-color: #409eff; }
+        .pg-info { font-size: 12px; color: #909399; margin-right: auto; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <div class="logo"><span style="margin-right:6px">✖</span><span>XT</span></div>
+    <div class="nav-items">
+        <a href="#">权限</a><a href="#">NFT</a><a href="#">理财</a><a href="#" class="active">跟单</a><a href="#">运营</a><a href="#">用户</a><a href="#">审核</a><a href="#">现货</a><a href="#">法币</a><a href="#">运维</a><a href="#">合约</a>
+    </div>
+    <div class="nav-right">
+        <span style="color:#aaa;font-size:12px">darren</span>
+        <div class="avatar">D</div>
+    </div>
+</div>
+
+<div class="sidebar">
+    <div class="sidebar-title">跟单管理系统</div>
+    <div class="menu-group-title">聪明钱管理</div>
+    <div class="menu-item" onclick="location.href='admin-wallet-list.html'">聪明钱带单员列表</div>
+    <div class="menu-item active">聪明钱信号日志</div>
+    <div class="menu-item" onclick="location.href='admin-config.html'">聪明钱全局配置</div>
+</div>
+
+<div class="main-content">
+    <div class="page-title">合约跟单 - 聪明钱信号日志</div>
+
+    <div class="stats-row">
+        <div class="stat-card"><div class="label">今日信号总数</div><div class="value">1,247</div><div class="sub">较昨日 +186</div></div>
+        <div class="stat-card green"><div class="label">已执行</div><div class="value">1,180</div><div class="sub">执行率 94.6%</div></div>
+        <div class="stat-card orange"><div class="label">已丢弃</div><div class="value">67</div><div class="sub">过期 32 / 滑点 18 / 闪开 12 / 未上线 5</div></div>
+        <div class="stat-card red"><div class="label">跟单失败</div><div class="value">23</div><div class="sub">资金不足 15 / 超限 8</div></div>
+    </div>
+
+    <div class="filter-area">
+        <div class="filter-row">
+            <span class="filter-label">钱包地址</span>
+            <input class="filter-input" placeholder="模糊搜索">
+            <span class="filter-label">合约</span>
+            <select class="filter-select"><option>全部</option><option>BTC-PERP</option><option>ETH-PERP</option><option>SOL-PERP</option><option>DOGE-PERP</option></select>
+            <span class="filter-label">信号类型</span>
+            <select class="filter-select"><option>全部</option><option>开仓</option><option>加仓</option><option>减仓</option><option>平仓</option></select>
+            <span class="filter-label">状态</span>
+            <select class="filter-select"><option>全部</option><option>已执行</option><option>已丢弃</option></select>
+            <span class="filter-label">时间</span>
+            <input type="date" class="filter-input" style="min-width:120px" value="2026-04-02"> ~ <input type="date" class="filter-input" style="min-width:120px" value="2026-04-02">
+            <div class="filter-right">
+                <button class="btn btn-blue">查询</button>
+                <button class="btn btn-orange">重置</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead><tr>
+                <th style="width:40px"></th>
+                <th>信号ID</th><th>钱包地址</th><th>信号类型</th><th>合约</th><th>方向</th><th>数量</th><th>链上价格</th><th>信号时间</th><th>状态</th><th>触发跟单</th><th>成功/失败</th><th>延迟</th>
+            </tr></thead>
+            <tbody id="signalBody"></tbody>
+        </table>
+        <div class="pagination">
+            <span class="pg-info">共 8,421 条，每页 10 条</span>
+            <div class="pg-btn">‹</div>
+            <div class="pg-btn active">1</div>
+            <div class="pg-btn">2</div>
+            <div class="pg-btn">3</div>
+            <div class="pg-btn">...</div>
+            <div class="pg-btn">843</div>
+            <div class="pg-btn">›</div>
+        </div>
+    </div>
+</div>
+
+<script>
+const signals = [
+    {id:'SIG-20260402-001',addr:'0x8e09...0c9',type:'开仓',co:'BTC-PERP',dir:'多',sz:'2.5 BTC',px:'$66,280',time:'2026-04-02 08:14:02',st:'已执行',trig:4,ok:4,fail:0,ms:'1,820'},
+    {id:'SIG-20260402-002',addr:'0x8e09...0c9',type:'开仓',co:'ETH-PERP',dir:'多',sz:'45 ETH',px:'$1,985',time:'2026-04-02 08:14:05',st:'已执行',trig:4,ok:3,fail:1,ms:'2,140'},
+    {id:'SIG-20260402-003',addr:'0x418a...8888',type:'平仓',co:'SOL-PERP',dir:'空',sz:'800 SOL',px:'$82.50',time:'2026-04-02 06:30:18',st:'已执行',trig:10,ok:10,fail:0,ms:'1,560'},
+    {id:'SIG-20260402-004',addr:'0xbf73...5d58',type:'加仓',co:'BTC-PERP',dir:'多',sz:'0.8 BTC',px:'$66,320',time:'2026-04-02 07:42:33',st:'已执行',trig:3,ok:3,fail:0,ms:'2,380'},
+    {id:'SIG-20260402-005',addr:'0x7dac...f410',type:'开仓',co:'DOGE-PERP',dir:'多',sz:'500K DOGE',px:'$0.0901',time:'2026-04-01 22:15:10',st:'已丢弃（交易对未上线）',trig:0,ok:0,fail:0,ms:'—'},
+    {id:'SIG-20260402-006',addr:'0xa87a...71b7',type:'平仓',co:'BTC-PERP',dir:'空',sz:'5.2 BTC',px:'$66,180',time:'2026-04-02 09:55:44',st:'已执行',trig:3,ok:2,fail:1,ms:'3,210'},
+    {id:'SIG-20260401-007',addr:'0x5b5d...c060',type:'开仓',co:'ETH-PERP',dir:'空',sz:'120 ETH',px:'$2,010',time:'2026-04-01 20:08:12',st:'已丢弃（过期）',trig:0,ok:0,fail:0,ms:'68,200'},
+    {id:'SIG-20260401-008',addr:'0x939f...04d2',type:'减仓',co:'BTC-PERP',dir:'多',sz:'10 BTC',px:'$65,900',time:'2026-04-01 18:20:05',st:'已执行',trig:0,ok:0,fail:0,ms:'1,980'},
+    {id:'SIG-20260401-009',addr:'0x8cc9...2b6a',type:'开仓',co:'BTC-PERP',dir:'多',sz:'1.5 BTC',px:'$66,050',time:'2026-04-01 15:30:22',st:'已丢弃（闪开闪平）',trig:0,ok:0,fail:0,ms:'—'},
+    {id:'SIG-20260401-010',addr:'0x418a...8888',type:'加仓',co:'ETH-PERP',dir:'多',sz:'25 ETH',px:'$2,005',time:'2026-04-01 14:12:08',st:'已丢弃（滑点）',trig:8,ok:0,fail:8,ms:'4,500'},
+];
+
+const details = {
+    'SIG-20260402-001':[
+        {uid:'952475149',mode:'智能',amt:'$500',px:'$66,285',slip:'0.008%',st:'<span class="green">成功</span>'},
+        {uid:'944613523',mode:'智能',amt:'$200',px:'$66,288',slip:'0.012%',st:'<span class="green">成功</span>'},
+        {uid:'953287815',mode:'自定义',amt:'$1,000',px:'$66,282',slip:'0.003%',st:'<span class="green">成功</span>'},
+        {uid:'952720582',mode:'智能',amt:'$150',px:'$66,290',slip:'0.015%',st:'<span class="green">成功</span>'},
+    ],
+    'SIG-20260402-002':[
+        {uid:'952475149',mode:'智能',amt:'$120',px:'$1,986.2',slip:'0.06%',st:'<span class="green">成功</span>'},
+        {uid:'944613523',mode:'智能',amt:'$80',px:'$1,986.5',slip:'0.08%',st:'<span class="green">成功</span>'},
+        {uid:'953287815',mode:'自定义',amt:'$500',px:'$1,985.8',slip:'0.04%',st:'<span class="green">成功</span>'},
+        {uid:'952720582',mode:'智能',amt:'$50',px:'—',slip:'—',st:'<span class="red">失败（资金不足）</span>'},
+    ],
+    'SIG-20260402-003':[
+        {uid:'952475149',mode:'智能',amt:'$800',px:'$82.52',slip:'0.024%',st:'<span class="green">成功</span>'},
+        {uid:'944613523',mode:'自定义',amt:'$500',px:'$82.51',slip:'0.012%',st:'<span class="green">成功</span>'},
+    ],
+};
+
+function stTag(s){
+    if(s==='已执行') return '<span class="tag tag-green">已执行</span>';
+    if(s.includes('过期')) return '<span class="tag tag-orange">已丢弃（过期）</span>';
+    if(s.includes('滑点')) return '<span class="tag tag-orange">已丢弃（滑点）</span>';
+    if(s.includes('闪开')) return '<span class="tag tag-orange">已丢弃（闪开闪平）</span>';
+    if(s.includes('未上线')) return '<span class="tag tag-gray">已丢弃（交易对未上线）</span>';
+    return '<span class="tag tag-gray">'+s+'</span>';
+}
+function typeTag(t){
+    const m={'开仓':'tag-blue','加仓':'tag-blue','减仓':'tag-orange','平仓':'tag-green'};
+    return '<span class="tag '+(m[t]||'tag-gray')+'">'+t+'</span>';
+}
+
+document.getElementById('signalBody').innerHTML = signals.map((s,i)=>{
+    const hasDet = details[s.id];
+    let html=`<tr>
+        <td>${hasDet?'<a class="op-link" onclick="toggle('+i+')">▸</a>':'—'}</td>
+        <td class="num" style="font-family:monospace;font-size:11px">${s.id}</td>
+        <td><span class="addr">${s.addr}</span></td>
+        <td>${typeTag(s.type)}</td>
+        <td>${s.co}</td>
+        <td class="${s.dir==='多'?'green':'red'}">${s.dir}</td>
+        <td class="num">${s.sz}</td>
+        <td class="num">${s.px}</td>
+        <td>${s.time}</td>
+        <td>${stTag(s.st)}</td>
+        <td class="num">${s.trig}</td>
+        <td class="num"><span class="green">${s.ok}</span> / <span class="${s.fail>0?'red':''}">${s.fail}</span></td>
+        <td class="num">${s.ms} ms</td>
+    </tr>`;
+    if(hasDet){
+        html+=`<tr class="detail-row" id="det-${i}"><td colspan="13" style="padding:12px 20px;background:#fafafa">
+            <div style="font-size:12px;font-weight:600;color:#303133;margin-bottom:8px">跟单订单详情</div>
+            <table class="detail-table">
+                <thead><tr><th>跟单员ID</th><th>跟单模式</th><th>下单金额</th><th>成交价</th><th>滑点</th><th>状态</th></tr></thead>
+                <tbody>${hasDet.map(d=>`<tr><td>${d.uid}</td><td>${d.mode}</td><td>${d.amt}</td><td>${d.px}</td><td>${d.slip}</td><td>${d.st}</td></tr>`).join('')}</tbody>
+            </table>
+        </td></tr>`;
+    }
+    return html;
+}).join('');
+
+function toggle(i){
+    const r=document.getElementById('det-'+i);
+    r.classList.toggle('show');
+    const btn=r.previousElementSibling.querySelector('.op-link');
+    btn.textContent=r.classList.contains('show')?'▾':'▸';
+}
+</script>
+</body>
+</html>

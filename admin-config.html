@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全局配置 - 聪明钱配置</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            font-size: 13px; color: #333; background: #f0f2f5;
+        }
+        .top-nav {
+            height: 40px; background: #1d1e23; display: flex; align-items: center;
+            padding: 0 12px; color: #ccc; font-size: 12px;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+        }
+        .top-nav .logo { display: flex; align-items: center; margin-right: 8px; }
+        .top-nav .logo span { font-weight: bold; color: #BAFF00; font-size: 14px; }
+        .top-nav .nav-items { display: flex; align-items: center; gap: 0; flex: 1; overflow: hidden; }
+        .top-nav .nav-items a { color: #aaa; text-decoration: none; padding: 4px 7px; white-space: nowrap; font-size: 12px; }
+        .top-nav .nav-items a:hover { color: #fff; }
+        .top-nav .nav-items a.active { color: #BAFF00; }
+        .top-nav .nav-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+        .top-nav .nav-right .avatar { width: 24px; height: 24px; border-radius: 50%; background: #444; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; }
+
+        .sidebar {
+            width: 160px; background: #242e38; position: fixed; top: 40px; left: 0; bottom: 0;
+            z-index: 999; overflow-y: auto; color: #bbb;
+        }
+        .sidebar .sidebar-title { padding: 14px 12px 10px; font-size: 13px; font-weight: 600; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .sidebar .menu-item { display: flex; align-items: center; padding: 9px 16px; color: #bbb; font-size: 12px; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+        .sidebar .menu-item:hover { background: rgba(255,255,255,0.05); }
+        .sidebar .menu-item.active { color: #BAFF00; background: rgba(186, 255, 0, 0.08); }
+        .sidebar .menu-group-title { padding: 10px 12px 6px; font-size: 11px; color: #666; letter-spacing: 0.5px; }
+
+        .main-content { margin-left: 160px; margin-top: 40px; padding: 16px 20px; min-height: calc(100vh - 40px); }
+        .page-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 16px; }
+
+        /* Config Cards */
+        .config-card { background: #fff; border-radius: 4px; padding: 20px; margin-bottom: 16px; }
+        .config-card h4 {
+            font-size: 13px; font-weight: 600; color: #303133; margin-bottom: 16px;
+            padding-bottom: 10px; border-bottom: 1px solid #ebeef5;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .config-card h4 .badge {
+            font-size: 10px; font-weight: 500; background: #ecf5ff; color: #409eff;
+            padding: 2px 8px; border-radius: 3px; border: 1px solid #d9ecff;
+        }
+
+        .form-row { display: flex; align-items: center; margin-bottom: 14px; gap: 12px; }
+        .form-row:last-child { margin-bottom: 0; }
+        .form-label {
+            width: 180px; font-size: 12px; color: #606266; text-align: right;
+            flex-shrink: 0; line-height: 1.4;
+        }
+        .form-value { display: flex; align-items: center; gap: 8px; }
+        .form-input {
+            height: 32px; padding: 0 10px; border: 1px solid #dcdfe6; border-radius: 4px;
+            font-size: 13px; color: #606266; width: 200px; font-variant-numeric: tabular-nums;
+        }
+        .form-input:focus { border-color: #409eff; outline: none; }
+        .form-unit { font-size: 12px; color: #909399; white-space: nowrap; }
+        .form-hint { font-size: 11px; color: #C0C4CC; margin-left: 8px; }
+
+        /* Switch */
+        .switch {
+            width: 44px; height: 22px; border-radius: 11px; background: #dcdfe6;
+            cursor: pointer; position: relative; transition: background 0.2s; display: inline-block;
+        }
+        .switch.on { background: #67c23a; }
+        .switch::after {
+            content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px;
+            border-radius: 50%; background: #fff; transition: transform 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .switch.on::after { transform: translateX(22px); }
+        .switch-label { font-size: 12px; margin-left: 8px; }
+        .switch-label.on { color: #67c23a; }
+        .switch-label.off { color: #909399; }
+
+        /* Buttons */
+        .btn {
+            height: 32px; padding: 0 20px; border: none; border-radius: 4px; font-size: 12px;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+            white-space: nowrap; transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.85; }
+        .btn-blue { background: #409eff; color: #fff; }
+        .btn-plain {
+            height: 32px; padding: 0 20px; border: 1px solid #dcdfe6; border-radius: 4px;
+            background: #fff; color: #606266; font-size: 12px; cursor: pointer;
+        }
+        .btn-plain:hover { border-color: #409eff; color: #409eff; }
+
+        .btn-area { display: flex; gap: 8px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #ebeef5; justify-content: flex-end; }
+
+        /* Toast */
+        .toast {
+            position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+            background: #67c23a; color: #fff; padding: 10px 24px; border-radius: 4px;
+            font-size: 13px; z-index: 2000; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .toast.show { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <div class="logo"><span style="margin-right:6px">✖</span><span>XT</span></div>
+    <div class="nav-items">
+        <a href="#">权限</a><a href="#">NFT</a><a href="#">理财</a><a href="#" class="active">跟单</a><a href="#">运营</a><a href="#">用户</a><a href="#">审核</a><a href="#">现货</a><a href="#">法币</a><a href="#">运维</a><a href="#">合约</a>
+    </div>
+    <div class="nav-right">
+        <span style="color:#aaa;font-size:12px">darren</span>
+        <div class="avatar">D</div>
+    </div>
+</div>
+
+<div class="sidebar">
+    <div class="sidebar-title">跟单管理系统</div>
+    <div class="menu-group-title">聪明钱管理</div>
+    <div class="menu-item" onclick="location.href='admin-wallet-list.html'">聪明钱带单员列表</div>
+    <div class="menu-item" onclick="location.href='admin-signal-log.html'">聪明钱信号日志</div>
+    <div class="menu-item active">聪明钱全局配置</div>
+</div>
+
+<div class="main-content">
+    <div class="page-title">合约跟单 - 聪明钱全局配置</div>
+
+    <!-- 功能开关 -->
+    <div class="config-card">
+        <h4>功能开关</h4>
+        <div class="form-row">
+            <div class="form-label">聪明钱功能总开关</div>
+            <div class="form-value">
+                <div class="switch on" id="mainSwitch" onclick="toggleSwitch(this)"></div>
+                <span class="switch-label on" id="mainSwitchLabel">已开启</span>
+                <span class="form-hint">关闭后前端聪明钱带单员 Tab 隐藏、信号停止生成</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 入池条件 -->
+    <div class="config-card">
+        <h4>入池条件 <span class="badge">自动扫描每 6h 执行一次</span></h4>
+        <div class="form-row">
+            <div class="form-label">入池最低活跃天数</div>
+            <div class="form-value">
+                <input class="form-input" value="90" style="width:120px">
+                <span class="form-unit">天</span>
+                <span class="form-hint">钱包链上首次交易至今需满足该天数</span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-label">入池最低交易次数</div>
+            <div class="form-value">
+                <input class="form-input" value="50" style="width:120px">
+                <span class="form-unit">笔</span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-label">入池最低总资产</div>
+            <div class="form-value">
+                <input class="form-input" value="10000" style="width:120px">
+                <span class="form-unit">USDT</span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-label">入池最低评分</div>
+            <div class="form-value">
+                <input class="form-input" value="40" style="width:120px">
+                <span class="form-unit">分（满分100）</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 跟单限制 -->
+    <div class="config-card">
+        <h4>跟单限制</h4>
+        <div class="form-row">
+            <div class="form-label">单个聪明钱最大跟单人数</div>
+            <div class="form-value">
+                <input class="form-input" value="100" style="width:120px">
+                <span class="form-unit">人</span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-label">用户最大同时跟单聪明钱数</div>
+            <div class="form-value">
+                <input class="form-input" value="5" style="width:120px">
+                <span class="form-unit">个</span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-label">最低跟单金额（智能跟单）</div>
+            <div class="form-value">
+                <input class="form-input" value="50" style="width:120px">
+                <span class="form-unit">USDT</span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-label">分润比例</div>
+            <div class="form-value">
+                <input class="form-input" value="15" style="width:120px">
+                <span class="form-unit">%</span>
+                <span class="form-hint">聪明钱跟单固定分润比例，仅盈利时收取</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 风控阈值 -->
+    <div class="config-card">
+        <h4>风控阈值</h4>
+        <div class="form-row">
+            <div class="form-label">信号延迟丢弃阈值</div>
+            <div class="form-value">
+                <input class="form-input" value="60" style="width:120px">
+                <span class="form-unit">秒</span>
+                <span class="form-hint">超过该时间的信号不执行</span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-label">滑点保护阈值</div>
+            <div class="form-value">
+                <input class="form-input" value="0.5" style="width:120px">
+                <span class="form-unit">%</span>
+                <span class="form-hint">执行价偏离信号价超过该比例取消</span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-label">闪开闪平过滤阈值</div>
+            <div class="form-value">
+                <input class="form-input" value="30" style="width:120px">
+                <span class="form-unit">秒</span>
+                <span class="form-hint">链上持仓时间低于该值不跟单</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 系统参数 -->
+    <div class="config-card">
+        <h4>系统参数</h4>
+        <div class="form-row">
+            <div class="form-label">全量评分刷新周期</div>
+            <div class="form-value">
+                <input class="form-input" value="6" style="width:120px">
+                <span class="form-unit">小时</span>
+                <span class="form-hint">重新拉取链上数据并评分的间隔</span>
+            </div>
+        </div>
+
+        <div class="btn-area">
+            <button class="btn-plain">重置为默认值</button>
+            <button class="btn btn-blue" onclick="saveConfig()">保存配置</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast">配置保存成功</div>
+
+<script>
+function toggleSwitch(el){
+    el.classList.toggle('on');
+    const label = document.getElementById('mainSwitchLabel');
+    if(el.classList.contains('on')){
+        label.textContent = '已开启';
+        label.className = 'switch-label on';
+    } else {
+        label.textContent = '已关闭';
+        label.className = 'switch-label off';
+    }
+}
+function saveConfig(){
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(()=> t.classList.remove('show'), 2000);
+}
+</script>
+</body>
+</html>

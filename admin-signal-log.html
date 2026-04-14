@@ -126,7 +126,7 @@
     <div class="stats-row">
         <div class="stat-card"><div class="label">今日信号总数</div><div class="value">1,247</div><div class="sub">较昨日 +186</div></div>
         <div class="stat-card green"><div class="label">已执行</div><div class="value">1,180</div><div class="sub">执行率 94.6%</div></div>
-        <div class="stat-card orange"><div class="label">已丢弃</div><div class="value">67</div><div class="sub">过期 32 / 滑点 18 / 闪开 12 / 未上线 5</div></div>
+        <div class="stat-card orange"><div class="label">已丢弃</div><div class="value">55</div><div class="sub">过期 32 / 滑点 18 / 未上线 5</div></div>
         <div class="stat-card red"><div class="label">跟单失败</div><div class="value">23</div><div class="sub">资金不足 15 / 超限 8</div></div>
     </div>
 
@@ -180,7 +180,7 @@ const signals = [
     {id:'SIG-20260402-006',addr:'0xa87a...71b7',type:'平仓',co:'BTC-PERP',dir:'空',sz:'5.2 BTC',px:'$66,180',time:'2026-04-02 09:55:44',st:'已执行',trig:3,ok:2,fail:1,ms:'3,210'},
     {id:'SIG-20260401-007',addr:'0x5b5d...c060',type:'开仓',co:'ETH-PERP',dir:'空',sz:'120 ETH',px:'$2,010',time:'2026-04-01 20:08:12',st:'已丢弃（过期）',trig:0,ok:0,fail:0,ms:'68,200'},
     {id:'SIG-20260401-008',addr:'0x939f...04d2',type:'减仓',co:'BTC-PERP',dir:'多',sz:'10 BTC',px:'$65,900',time:'2026-04-01 18:20:05',st:'已执行',trig:0,ok:0,fail:0,ms:'1,980'},
-    {id:'SIG-20260401-009',addr:'0x8cc9...2b6a',type:'开仓',co:'BTC-PERP',dir:'多',sz:'1.5 BTC',px:'$66,050',time:'2026-04-01 15:30:22',st:'已丢弃（闪开闪平）',trig:0,ok:0,fail:0,ms:'—'},
+    {id:'SIG-20260401-009',addr:'0x8cc9...2b6a',type:'平仓',co:'BTC-PERP',dir:'多',sz:'1.5 BTC',px:'$66,050',time:'2026-04-01 15:30:22',st:'闪开闪平自动平仓',trig:3,ok:3,fail:0,ms:'2,150'},
     {id:'SIG-20260401-010',addr:'0x418a...8888',type:'加仓',co:'ETH-PERP',dir:'多',sz:'25 ETH',px:'$2,005',time:'2026-04-01 14:12:08',st:'已丢弃（滑点）',trig:8,ok:0,fail:8,ms:'4,500'},
 ];
 
@@ -207,7 +207,7 @@ function stTag(s){
     if(s==='已执行') return '<span class="tag tag-green">已执行</span>';
     if(s.includes('过期')) return '<span class="tag tag-orange">已丢弃（过期）</span>';
     if(s.includes('滑点')) return '<span class="tag tag-orange">已丢弃（滑点）</span>';
-    if(s.includes('闪开')) return '<span class="tag tag-orange">已丢弃（闪开闪平）</span>';
+    if(s.includes('闪开闪平自动平仓')) return '<span class="tag tag-blue">闪开闪平自动平仓</span>';
     if(s.includes('未上线')) return '<span class="tag tag-gray">已丢弃（交易对未上线）</span>';
     return '<span class="tag tag-gray">'+s+'</span>';
 }

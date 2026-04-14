@@ -146,18 +146,27 @@
     <div class="config-card">
         <h4>入池条件 <span class="badge">自动扫描每 6h 执行一次</span></h4>
         <div class="form-row">
-            <div class="form-label">入池最低活跃天数</div>
+            <div class="form-label">入池总量上限</div>
             <div class="form-value">
-                <input class="form-input" value="90" style="width:120px">
-                <span class="form-unit">天</span>
-                <span class="form-hint">钱包链上首次交易至今需满足该天数</span>
+                <input class="form-input" value="100" style="width:120px">
+                <span class="form-unit">个</span>
+                <span class="form-hint">聪明钱池最大钱包数量，达到上限后暂停自动扩充</span>
             </div>
         </div>
         <div class="form-row">
-            <div class="form-label">入池最低交易次数</div>
+            <div class="form-label">入池最低活跃覆盖天数</div>
             <div class="form-value">
-                <input class="form-input" value="50" style="width:120px">
+                <input class="form-input" value="90" style="width:120px">
+                <span class="form-unit">天</span>
+                <span class="form-hint">基于 userFills 最近 2000 条的时间跨度判断，2000 条满自动通过</span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-label">入池近期最低交易笔数</div>
+            <div class="form-value">
+                <input class="form-input" value="30" style="width:120px">
                 <span class="form-unit">笔</span>
+                <span class="form-hint">近 90 天内的交易笔数</span>
             </div>
         </div>
         <div class="form-row">
@@ -172,6 +181,14 @@
             <div class="form-value">
                 <input class="form-input" value="40" style="width:120px">
                 <span class="form-unit">分（满分100）</span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-label">入池 builderFee 排除阈值</div>
+            <div class="form-value">
+                <input class="form-input" value="50" style="width:120px">
+                <span class="form-unit">%</span>
+                <span class="form-hint">userFills 中 builderFee &gt; 0 占比超过该比例则排除（过滤 Builder 跟单地址）</span>
             </div>
         </div>
     </div>

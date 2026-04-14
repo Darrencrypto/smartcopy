@@ -153,7 +153,7 @@
         <table class="data-table">
             <thead><tr>
                 <th style="width:40px"></th>
-                <th>信号ID</th><th>钱包地址</th><th>信号类型</th><th>合约</th><th>方向</th><th>数量</th><th>链上价格</th><th>信号时间</th><th>状态</th><th>触发跟单</th><th>成功/失败</th><th>延迟</th>
+                <th>信号ID</th><th>钱包地址</th><th>信号类型</th><th>合约</th><th>方向</th><th>数量</th><th>链上价格<br><span style="font-weight:400;color:#909399;font-size:10px">HL USDC</span></th><th>参考价<br><span style="font-weight:400;color:#909399;font-size:10px">XT USDT</span></th><th>信号时间</th><th>状态</th><th>触发跟单</th><th>成功/失败</th><th>延迟</th>
             </tr></thead>
             <tbody id="signalBody"></tbody>
         </table>
@@ -172,16 +172,16 @@
 
 <script>
 const signals = [
-    {id:'SIG-20260402-001',addr:'0x8e09...0c9',type:'开仓',co:'BTC-PERP',dir:'多',sz:'2.5 BTC',px:'$66,280',time:'2026-04-02 08:14:02',st:'已执行',trig:4,ok:4,fail:0,ms:'1,820'},
-    {id:'SIG-20260402-002',addr:'0x8e09...0c9',type:'开仓',co:'ETH-PERP',dir:'多',sz:'45 ETH',px:'$1,985',time:'2026-04-02 08:14:05',st:'已执行',trig:4,ok:3,fail:1,ms:'2,140'},
-    {id:'SIG-20260402-003',addr:'0x418a...8888',type:'平仓',co:'SOL-PERP',dir:'空',sz:'800 SOL',px:'$82.50',time:'2026-04-02 06:30:18',st:'已执行',trig:10,ok:10,fail:0,ms:'1,560'},
-    {id:'SIG-20260402-004',addr:'0xbf73...5d58',type:'加仓',co:'BTC-PERP',dir:'多',sz:'0.8 BTC',px:'$66,320',time:'2026-04-02 07:42:33',st:'已执行',trig:3,ok:3,fail:0,ms:'2,380'},
-    {id:'SIG-20260402-005',addr:'0x7dac...f410',type:'开仓',co:'DOGE-PERP',dir:'多',sz:'500K DOGE',px:'$0.0901',time:'2026-04-01 22:15:10',st:'已丢弃（交易对未上线）',trig:0,ok:0,fail:0,ms:'—'},
-    {id:'SIG-20260402-006',addr:'0xa87a...71b7',type:'平仓',co:'BTC-PERP',dir:'空',sz:'5.2 BTC',px:'$66,180',time:'2026-04-02 09:55:44',st:'已执行',trig:3,ok:2,fail:1,ms:'3,210'},
-    {id:'SIG-20260401-007',addr:'0x5b5d...c060',type:'开仓',co:'ETH-PERP',dir:'空',sz:'120 ETH',px:'$2,010',time:'2026-04-01 20:08:12',st:'已丢弃（过期）',trig:0,ok:0,fail:0,ms:'68,200'},
-    {id:'SIG-20260401-008',addr:'0x939f...04d2',type:'减仓',co:'BTC-PERP',dir:'多',sz:'10 BTC',px:'$65,900',time:'2026-04-01 18:20:05',st:'已执行',trig:0,ok:0,fail:0,ms:'1,980'},
-    {id:'SIG-20260401-009',addr:'0x8cc9...2b6a',type:'平仓',co:'BTC-PERP',dir:'多',sz:'1.5 BTC',px:'$66,050',time:'2026-04-01 15:30:22',st:'闪开闪平自动平仓',trig:3,ok:3,fail:0,ms:'2,150'},
-    {id:'SIG-20260401-010',addr:'0x418a...8888',type:'加仓',co:'ETH-PERP',dir:'多',sz:'25 ETH',px:'$2,005',time:'2026-04-01 14:12:08',st:'已丢弃（滑点）',trig:8,ok:0,fail:8,ms:'4,500'},
+    {id:'SIG-20260402-001',addr:'0x8e09...0c9',type:'开仓',co:'BTC-PERP',dir:'多',sz:'2.5 BTC',px:'$66,280',refPx:'$66,305',time:'2026-04-02 08:14:02',st:'已执行',trig:4,ok:4,fail:0,ms:'1,820'},
+    {id:'SIG-20260402-002',addr:'0x8e09...0c9',type:'开仓',co:'ETH-PERP',dir:'多',sz:'45 ETH',px:'$1,985',refPx:'$1,986.1',time:'2026-04-02 08:14:05',st:'已执行',trig:4,ok:3,fail:1,ms:'2,140'},
+    {id:'SIG-20260402-003',addr:'0x418a...8888',type:'平仓',co:'SOL-PERP',dir:'空',sz:'800 SOL',px:'$82.50',refPx:'$82.53',time:'2026-04-02 06:30:18',st:'已执行',trig:10,ok:10,fail:0,ms:'1,560'},
+    {id:'SIG-20260402-004',addr:'0xbf73...5d58',type:'加仓',co:'BTC-PERP',dir:'多',sz:'0.8 BTC',px:'$66,320',refPx:'$66,345',time:'2026-04-02 07:42:33',st:'已执行',trig:3,ok:3,fail:0,ms:'2,380'},
+    {id:'SIG-20260402-005',addr:'0x7dac...f410',type:'开仓',co:'DOGE-PERP',dir:'多',sz:'500K DOGE',px:'$0.0901',refPx:'—',time:'2026-04-01 22:15:10',st:'已丢弃（交易对未上线）',trig:0,ok:0,fail:0,ms:'—'},
+    {id:'SIG-20260402-006',addr:'0xa87a...71b7',type:'平仓',co:'BTC-PERP',dir:'空',sz:'5.2 BTC',px:'$66,180',refPx:'$66,205',time:'2026-04-02 09:55:44',st:'已执行',trig:3,ok:2,fail:1,ms:'3,210'},
+    {id:'SIG-20260401-007',addr:'0x5b5d...c060',type:'开仓',co:'ETH-PERP',dir:'空',sz:'120 ETH',px:'$2,010',refPx:'—',time:'2026-04-01 20:08:12',st:'已丢弃（过期）',trig:0,ok:0,fail:0,ms:'68,200'},
+    {id:'SIG-20260401-008',addr:'0x939f...04d2',type:'减仓',co:'BTC-PERP',dir:'多',sz:'10 BTC',px:'$65,900',refPx:'$65,925',time:'2026-04-01 18:20:05',st:'已执行',trig:0,ok:0,fail:0,ms:'1,980'},
+    {id:'SIG-20260401-009',addr:'0x8cc9...2b6a',type:'平仓',co:'BTC-PERP',dir:'多',sz:'1.5 BTC',px:'$66,050',refPx:'$66,078',time:'2026-04-01 15:30:22',st:'闪开闪平自动平仓',trig:3,ok:3,fail:0,ms:'2,150'},
+    {id:'SIG-20260401-010',addr:'0x418a...8888',type:'加仓',co:'ETH-PERP',dir:'多',sz:'25 ETH',px:'$2,005',refPx:'$2,006.5',time:'2026-04-01 14:12:08',st:'已丢弃（滑点）',trig:8,ok:0,fail:8,ms:'4,500'},
 ];
 
 const details = {
@@ -227,6 +227,7 @@ document.getElementById('signalBody').innerHTML = signals.map((s,i)=>{
         <td class="${s.dir==='多'?'green':'red'}">${s.dir}</td>
         <td class="num">${s.sz}</td>
         <td class="num">${s.px}</td>
+        <td class="num">${s.refPx}</td>
         <td>${s.time}</td>
         <td>${stTag(s.st)}</td>
         <td class="num">${s.trig}</td>
@@ -234,7 +235,7 @@ document.getElementById('signalBody').innerHTML = signals.map((s,i)=>{
         <td class="num">${s.ms} ms</td>
     </tr>`;
     if(hasDet){
-        html+=`<tr class="detail-row" id="det-${i}"><td colspan="13" style="padding:12px 20px;background:#fafafa">
+        html+=`<tr class="detail-row" id="det-${i}"><td colspan="14" style="padding:12px 20px;background:#fafafa">
             <div style="font-size:12px;font-weight:600;color:#303133;margin-bottom:8px">跟单订单详情</div>
             <table class="detail-table">
                 <thead><tr><th>跟单员ID</th><th>跟单模式</th><th>下单金额</th><th>成交价</th><th>滑点</th><th>状态</th></tr></thead>

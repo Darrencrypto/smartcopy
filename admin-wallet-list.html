@@ -139,6 +139,45 @@
         .num { font-variant-numeric: tabular-nums; }
         .score { font-weight: 600; }
 
+        /* ===== Tabs ===== */
+        .tabs { display: flex; background: #fff; border-radius: 4px 4px 0 0; padding: 0 16px; margin-bottom: 0; border-bottom: 1px solid #ebeef5; }
+        .tab {
+            padding: 14px 20px; font-size: 13px; color: #606266; cursor: pointer;
+            border-bottom: 2px solid transparent; transition: color 0.2s, border-color 0.2s;
+            white-space: nowrap; position: relative;
+        }
+        .tab:hover { color: #409eff; }
+        .tab.active { color: #409eff; border-bottom-color: #409eff; font-weight: 600; }
+        .tab .tab-count { margin-left: 6px; font-size: 11px; color: #909399; font-weight: 400; }
+        .tab.active .tab-count { color: #409eff; }
+        .tab .tab-badge {
+            display: inline-block; background: #f56c6c; color: #fff; font-size: 10px;
+            min-width: 16px; height: 16px; line-height: 16px; text-align: center;
+            border-radius: 8px; padding: 0 5px; margin-left: 6px; font-weight: 400;
+        }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+        .pool-notice {
+            background: #fdf6ec; border-left: 3px solid #e6a23c; padding: 8px 12px; margin-bottom: 12px;
+            font-size: 12px; color: #b88230; border-radius: 0 4px 4px 0;
+        }
+        .pool-notice.full { background: #fef0f0; border-left-color: #f56c6c; color: #c45656; }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+            background: rgba(50,50,50,0.92); color: #fff; padding: 10px 20px; border-radius: 4px;
+            font-size: 13px; z-index: 2000; opacity: 0; transition: opacity 0.3s;
+            max-width: 480px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
+        .toast.warn { background: rgba(230,162,60,0.95); }
+        .toast.error { background: rgba(245,108,108,0.95); }
+        .toast.success { background: rgba(103,194,58,0.95); }
+
+        /* ===== Red flag row ===== */
+        .flag-warn { display: inline-block; background: #fef0f0; color: #f56c6c; border: 1px solid #fde2e2; border-radius: 3px; padding: 1px 6px; font-size: 10px; margin-left: 4px; }
+
         /* ===== Pagination ===== */
         .pagination { display: flex; align-items: center; justify-content: flex-end; padding: 10px 12px; gap: 4px; font-size: 12px; color: #606266; }
         .pg-btn {
@@ -203,95 +242,151 @@
 
     <!-- Stats -->
     <div class="stats-row">
-        <div class="stat-card"><div class="label">入池钱包总数</div><div class="value">523</div><div class="sub">活跃 489 / 暂停 34</div></div>
+        <div class="stat-card"><div class="label">聪明钱池</div><div class="value"><span id="poolCountDisplay">87</span>/100</div><div class="sub">硬上限 100，候选池 <span id="candCountSub">42</span></div></div>
         <div class="stat-card orange"><div class="label">有跟单的钱包</div><div class="value">38</div><div class="sub">跟单者总计 156 人</div></div>
         <div class="stat-card green"><div class="label">总带单规模</div><div class="value">$218M</div><div class="sub">链上账户总权益</div></div>
         <div class="stat-card purple"><div class="label">今日信号数</div><div class="value">1,247</div><div class="sub">已执行 1,180 / 丢弃 67</div></div>
         <div class="stat-card red"><div class="label">平均延迟</div><div class="value">2.1s</div><div class="sub">P99: 4.8s</div></div>
     </div>
 
-    <!-- Filter -->
-    <div class="filter-area">
-        <div class="filter-row">
-            <span class="filter-label">XT UID</span>
-            <input class="filter-input" placeholder="输入XT用户ID" style="min-width:140px">
-            <span class="filter-label">钱包地址</span>
-            <input class="filter-input" placeholder="输入完整或脱敏地址" style="min-width:200px">
-            <span class="filter-label">风险等级</span>
-            <select class="filter-select"><option>全部</option><option>低风险</option><option>中风险</option><option>高风险</option></select>
-            <span class="filter-label">状态</span>
-            <select class="filter-select"><option>全部</option><option>启用</option><option>暂停</option><option>已移除</option></select>
+    <!-- Tabs -->
+    <div class="tabs">
+        <div class="tab active" data-tab="pool" onclick="switchTab('pool')">
+            聪明钱池<span class="tab-count">(<span id="tabPoolCount">87</span>/100)</span>
         </div>
-        <div class="filter-row">
-            <span class="filter-label">评分区间</span>
-            <input class="filter-input" placeholder="最低分" style="min-width:80px;width:80px"> <span style="color:#ccc">~</span> <input class="filter-input" placeholder="最高分" style="min-width:80px;width:80px">
-            <span class="filter-label">带单规模</span>
-            <select class="filter-select"><option>全部</option><option>&gt;$10K</option><option>&gt;$100K</option><option>&gt;$1M</option><option>&gt;$5M</option></select>
-            <div class="filter-right">
-                <button class="btn btn-blue">查询</button>
-                <button class="btn btn-orange">重置</button>
-                <button class="btn btn-green" onclick="openModal()">+ 手动添加钱包</button>
+        <div class="tab" data-tab="candidate" onclick="switchTab('candidate')">
+            候选池<span class="tab-count" id="tabCandCount">42</span><span class="tab-badge" id="tabCandBadge">12</span>
+        </div>
+    </div>
+
+    <!-- ========= Tab: 聪明钱池 ========= -->
+    <div class="tab-pane active" id="pane-pool">
+        <div class="filter-area" style="border-radius:0 0 4px 4px;">
+            <div class="filter-row">
+                <span class="filter-label">XT UID</span>
+                <input class="filter-input" placeholder="输入XT用户ID" style="min-width:140px">
+                <span class="filter-label">钱包地址</span>
+                <input class="filter-input" placeholder="输入完整或脱敏地址" style="min-width:200px">
+                <span class="filter-label">风险等级</span>
+                <select class="filter-select"><option>全部</option><option>低风险</option><option>中风险</option><option>高风险</option></select>
+                <span class="filter-label">跟单情况</span>
+                <select class="filter-select"><option>全部</option><option>有跟单</option><option>无跟单</option></select>
+            </div>
+            <div class="filter-row">
+                <span class="filter-label">评分区间</span>
+                <input class="filter-input" placeholder="最低分" style="min-width:80px;width:80px"> <span style="color:#ccc">~</span> <input class="filter-input" placeholder="最高分" style="min-width:80px;width:80px">
+                <span class="filter-label">带单规模</span>
+                <select class="filter-select"><option>全部</option><option>&gt;$10K</option><option>&gt;$100K</option><option>&gt;$1M</option><option>&gt;$5M</option></select>
+                <div class="filter-right">
+                    <button class="btn btn-blue">查询</button>
+                    <button class="btn btn-orange">重置</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-wrapper" style="border-radius:0;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>XT UID</th>
+                        <th>钱包地址</th>
+                        <th>数据来源</th>
+                        <th>内部评分</th>
+                        <th>风险等级</th>
+                        <th>当前跟单/最大</th>
+                        <th>累计跟随</th>
+                        <th>总资产</th>
+                        <th>分润比例</th>
+                        <th>活跃天数</th>
+                        <th>最近交易时间</th>
+                        <th>策略标签</th>
+                        <th>显示</th>
+                        <th style="min-width:120px">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="poolBody"></tbody>
+            </table>
+            <div class="pagination">
+                <span class="pg-info">共 <span id="poolTotal">87</span> 条，每页 10 条</span>
+                <div class="pg-btn">‹</div>
+                <div class="pg-btn active">1</div>
+                <div class="pg-btn">2</div>
+                <div class="pg-btn">3</div>
+                <div class="pg-btn">›</div>
             </div>
         </div>
     </div>
 
-    <!-- Table -->
-    <div class="table-wrapper">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>XT UID</th>
-                    <th>钱包地址</th>
-                    <th>数据来源</th>
-                    <th>内部评分</th>
-                    <th>风险等级</th>
-                    <th>当前跟单/最大</th>
-                    <th>累计跟随</th>
-                    <th>总资产</th>
-                    <th>分润比例</th>
-                    <th>活跃天数</th>
-                    <th>最近交易时间</th>
-                    <th>策略标签</th>
-                    <th>状态</th>
-                    <th>显示</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-        <div class="pagination">
-            <span class="pg-info">共 523 条，每页 10 条</span>
-            <div class="pg-btn">‹</div>
-            <div class="pg-btn active">1</div>
-            <div class="pg-btn">2</div>
-            <div class="pg-btn">3</div>
-            <div class="pg-btn">4</div>
-            <div class="pg-btn">5</div>
-            <div class="pg-btn">...</div>
-            <div class="pg-btn">53</div>
-            <div class="pg-btn">›</div>
+    <!-- ========= Tab: 候选池 ========= -->
+    <div class="tab-pane" id="pane-candidate">
+        <div id="poolFullNotice" class="pool-notice" style="display:none;">
+            💡 当前聪明钱池 <b>87/100</b>，入池按钮可直接入池；达到 100 后需弹窗替换。
+        </div>
+        <div class="filter-area" style="border-radius:0 0 4px 4px;">
+            <div class="filter-row">
+                <span class="filter-label">钱包地址</span>
+                <input class="filter-input" placeholder="输入完整或脱敏地址" style="min-width:200px">
+                <span class="filter-label">来源</span>
+                <select class="filter-select"><option>全部</option><option>自动扫描</option><option>运营手动</option></select>
+                <span class="filter-label">评分区间</span>
+                <input class="filter-input" placeholder="最低分" style="min-width:80px;width:80px"> <span style="color:#ccc">~</span> <input class="filter-input" placeholder="最高分" style="min-width:80px;width:80px">
+                <div class="filter-right">
+                    <button class="btn btn-blue">查询</button>
+                    <button class="btn btn-orange">重置</button>
+                    <button class="btn btn-green" onclick="openAddModal()">+ 手动添加钱包</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-wrapper" style="border-radius:0;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>钱包地址</th>
+                        <th>来源</th>
+                        <th>内部评分</th>
+                        <th>90d ROI</th>
+                        <th>最大回撤</th>
+                        <th>总资产</th>
+                        <th>活跃天数</th>
+                        <th>风险等级</th>
+                        <th>策略标签</th>
+                        <th>加入时间</th>
+                        <th style="min-width:120px">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="candBody"></tbody>
+            </table>
+            <div class="pagination">
+                <span class="pg-info">共 <span id="candTotal">42</span> 条（软上限 500，按评分降序）</span>
+                <div class="pg-btn">‹</div>
+                <div class="pg-btn active">1</div>
+                <div class="pg-btn">2</div>
+                <div class="pg-btn">›</div>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- ===== Modal: 手动添加钱包 ===== -->
-<div class="overlay" id="overlay" onclick="closeModal()"></div>
-<div class="modal" id="modal">
+<div class="overlay" id="overlayAdd" onclick="closeAddModal()"></div>
+<div class="modal" id="modalAdd">
     <div class="modal-header">
-        <h3>手动添加钱包</h3>
-        <button class="modal-close" onclick="closeModal()">✕</button>
+        <h3>手动添加到候选池</h3>
+        <button class="modal-close" onclick="closeAddModal()">✕</button>
     </div>
     <div class="modal-body">
         <div class="form-row">
             <div class="form-label">钱包地址 *</div>
             <div class="form-value">
                 <input class="form-input" placeholder="输入完整 Hyperliquid 地址（0x...）">
-                <div class="form-hint">提交后系统自动拉取链上数据并计算评分</div>
+                <div class="form-hint">提交后系统自动拉取链上数据并计算评分，加入<b>候选池</b>；确认入池请在候选池列表点「入池」</div>
             </div>
         </div>
         <div class="form-row">
             <div class="form-label">入池条件</div>
             <div class="form-value">
-                <label class="form-checkbox"><input type="checkbox"> 跳过入池条件（允许不满足评分/活跃天数等条件的钱包入池）</label>
+                <label class="form-checkbox"><input type="checkbox"> 跳过入池条件（允许不满足评分/活跃天数等条件的钱包加入候选池）</label>
             </div>
         </div>
         <div class="form-row">
@@ -302,46 +397,249 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-plain" onclick="closeModal()">取消</button>
-        <button class="btn btn-blue" onclick="closeModal()">确认添加</button>
+        <button class="btn btn-plain" onclick="closeAddModal()">取消</button>
+        <button class="btn btn-blue" onclick="submitAdd()">确认添加到候选池</button>
     </div>
 </div>
 
+<!-- ===== Modal: 池满时替换 ===== -->
+<div class="overlay" id="overlayReplace" onclick="closeReplaceModal()"></div>
+<div class="modal" id="modalReplace" style="width:640px;">
+    <div class="modal-header">
+        <h3>聪明钱池已满 (100/100)，选择一个钱包替换</h3>
+        <button class="modal-close" onclick="closeReplaceModal()">✕</button>
+    </div>
+    <div class="modal-body" style="max-height:460px; overflow:auto; padding:16px 20px;">
+        <div style="background:#ecf5ff; border-left:3px solid #409eff; padding:8px 12px; margin-bottom:12px; font-size:12px; color:#305f9d; border-radius:0 4px 4px 0;">
+            新入池钱包：<span class="addr" id="rpNewAddr"></span>（评分 <span id="rpNewScore"></span>）<br>
+            请选择一个现有钱包替换出池 ——
+            <b>有用户跟单的钱包无法替换（已锁定）</b>，系统默认按评分升序排列。
+        </div>
+        <table class="data-table" style="min-width:auto;">
+            <thead>
+                <tr>
+                    <th style="width:32px"></th>
+                    <th>钱包</th>
+                    <th>评分</th>
+                    <th>当前跟单</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody id="replaceBody"></tbody>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-plain" onclick="closeReplaceModal()">取消</button>
+        <button class="btn btn-blue" id="rpConfirmBtn" onclick="confirmReplace()" disabled style="opacity:0.5;cursor:not-allowed">确认替换</button>
+    </div>
+</div>
+
+<!-- ===== Toast ===== -->
+<div class="toast" id="toast"></div>
+
 <script>
-const mockData = [
-    {uid:'960001001',addr:'0x8e096995c3e4a3f0bc5b3ea1cba94de2aa4d70c9',score:92,risk:'low',cur:4,max:100,total:128,aum:'$1,563,266',roi:'+177.48%',pnl:'+$1,939,226',tpnl:'+$4,821,500',ratio:'15%',days:245,last:'2026-04-02 08:14',tags:['BTC主力','趋势','中长线'],status:true,display:true,rec:false},
-    {uid:'960001002',addr:'0x418aa6bf98a2b2bc93779f810330d88cde488888',score:85,risk:'low',cur:10,max:100,total:342,aum:'$5,700,000',roi:'+8.13%',pnl:'+$919,399',tpnl:'+$2,150,800',ratio:'15%',days:380,last:'2026-04-02 06:30',tags:['多币种','稳健'],status:true,display:true,rec:true},
-    {uid:'960001003',addr:'0x7dacca323e44f168494c779bb5e7483c468ef410',score:95,risk:'low',cur:0,max:100,total:0,aum:'$9,100,000',roi:'+342.19%',pnl:'+$15,398,782',tpnl:'+$28,400,000',ratio:'15%',days:312,last:'2026-04-01 22:15',tags:['巨鲸','趋势'],status:true,display:true,rec:false},
-    {uid:'960001004',addr:'0xbf732ea04197942783e34730ed6e0f6099575d58',score:88,risk:'moderate',cur:3,max:100,total:56,aum:'$57,900',roi:'+674.24%',pnl:'+$50,462',tpnl:'+$82,300',ratio:'15%',days:156,last:'2026-04-02 07:42',tags:['BTC主力','多头偏向'],status:true,display:true,rec:false},
-    {uid:'960001005',addr:'0x939f95036d2e7b6d7419ec072bf9d967352204d2',score:78,risk:'low',cur:0,max:100,total:15,aum:'$11,900,000',roi:'+109.55%',pnl:'+$9,387,716',tpnl:'+$15,200,000',ratio:'15%',days:290,last:'2026-04-01 18:20',tags:['ETH主力','巨鲸'],status:true,display:true,rec:false},
-    {uid:'960001006',addr:'0x8cc94dc843e1ea7a19805e0cca43001123512b6a',score:74,risk:'moderate',cur:0,max:100,total:8,aum:'$6,800,000',roi:'+3.72%',pnl:'+$415,254',tpnl:'+$980,000',ratio:'15%',days:210,last:'2026-03-31 14:08',tags:['趋势','巨鲸'],status:true,display:true,rec:false},
-    {uid:'960001007',addr:'0xb0a55f13d22f66e6d495ac98113841b2326e9540',score:72,risk:'moderate',cur:0,max:100,total:0,aum:'$30,000,000',roi:'+0.00%',pnl:'$0',tpnl:'+$450,000',ratio:'15%',days:420,last:'2026-03-28 10:00',tags:['巨鲸'],status:true,display:false,rec:false},
-    {uid:'960001008',addr:'0xa87a233e8a7d8951ff790a2e39738086cb5f71b7',score:68,risk:'moderate',cur:3,max:100,total:45,aum:'$8,600,000',roi:'-5.84%',pnl:'-$535,637',tpnl:'+$1,200,000',ratio:'15%',days:195,last:'2026-04-02 09:55',tags:['ETH主力','空头偏向'],status:true,display:true,rec:false},
-    {uid:'960001009',addr:'0x45d26f28196d226497130c4bac709d808fed4029',score:55,risk:'high',cur:0,max:100,total:3,aum:'$15,800,000',roi:'-9.72%',pnl:'-$1,701,454',tpnl:'-$320,000',ratio:'15%',days:165,last:'2026-04-01 20:30',tags:['多币种','巨鲸'],status:false,display:false,rec:false},
-    {uid:'960001010',addr:'0x5b5d51203a0f9079f8aeb098a6523a13f298c060',score:42,risk:'high',cur:1,max:100,total:12,aum:'$2,000,000',roi:'-83.99%',pnl:'-$36,937,767',tpnl:'-$18,500,000',ratio:'15%',days:88,last:'2026-03-30 05:12',tags:['多币种'],status:false,display:false,rec:false},
+// ============ 聪明钱池 mock（87 个，展示 10）============
+const poolData = [
+    {uid:'960001001',addr:'0x8e096995c3e4a3f0bc5b3ea1cba94de2aa4d70c9',score:92,risk:'low',cur:4,max:5,total:128,aum:'$1,563,266',ratio:'15%',days:245,last:'2026-04-02 08:14',tags:['BTC主力','趋势','中长线'],display:true,flag:null},
+    {uid:'960001002',addr:'0x418aa6bf98a2b2bc93779f810330d88cde488888',score:85,risk:'low',cur:5,max:5,total:342,aum:'$5,700,000',ratio:'15%',days:380,last:'2026-04-02 06:30',tags:['多币种','稳健'],display:true,flag:null},
+    {uid:'960001003',addr:'0x7dacca323e44f168494c779bb5e7483c468ef410',score:95,risk:'low',cur:0,max:5,total:0,aum:'$9,100,000',ratio:'15%',days:312,last:'2026-04-01 22:15',tags:['巨鲸','趋势'],display:true,flag:null},
+    {uid:'960001004',addr:'0xbf732ea04197942783e34730ed6e0f6099575d58',score:88,risk:'moderate',cur:3,max:5,total:56,aum:'$57,900',ratio:'15%',days:156,last:'2026-04-02 07:42',tags:['BTC主力','多头偏向'],display:true,flag:null},
+    {uid:'960001005',addr:'0x939f95036d2e7b6d7419ec072bf9d967352204d2',score:78,risk:'low',cur:0,max:5,total:15,aum:'$11,900,000',ratio:'15%',days:290,last:'2026-04-01 18:20',tags:['ETH主力','巨鲸'],display:true,flag:null},
+    {uid:'960001006',addr:'0x8cc94dc843e1ea7a19805e0cca43001123512b6a',score:74,risk:'moderate',cur:0,max:5,total:8,aum:'$6,800,000',ratio:'15%',days:210,last:'2026-03-31 14:08',tags:['趋势','巨鲸'],display:true,flag:null},
+    {uid:'960001007',addr:'0xb0a55f13d22f66e6d495ac98113841b2326e9540',score:72,risk:'moderate',cur:0,max:5,total:0,aum:'$30,000,000',ratio:'15%',days:420,last:'2026-03-28 10:00',tags:['巨鲸'],display:false,flag:null},
+    {uid:'960001008',addr:'0xa87a233e8a7d8951ff790a2e39738086cb5f71b7',score:68,risk:'moderate',cur:3,max:5,total:45,aum:'$8,600,000',ratio:'15%',days:195,last:'2026-04-02 09:55',tags:['ETH主力','空头偏向'],display:true,flag:null},
+    {uid:'960001009',addr:'0x45d26f28196d226497130c4bac709d808fed4029',score:38,risk:'high',cur:0,max:5,total:3,aum:'$15,800,000',ratio:'15%',days:165,last:'2026-02-20 20:30',tags:['多币种','巨鲸'],display:false,flag:'建议替换：评分<40 且 30d 无交易'},
+    {uid:'960001010',addr:'0x5b5d51203a0f9079f8aeb098a6523a13f298c060',score:36,risk:'high',cur:1,max:5,total:12,aum:'$2,000,000',ratio:'15%',days:88,last:'2026-03-30 05:12',tags:['多币种'],display:false,flag:'评分<40，有跟单暂无法自动出池'},
 ];
 
+// ============ 候选池 mock ============
+const candData = [
+    {addr:'0x7f21e4d2d4f893e8cf47a4b6a0a8b5c91234abcd',source:'auto',score:94,roi:'+268.4%',mdd:'8.2%',aum:'$12,300,000',days:27,risk:'low',tags:['BTC主力','趋势'],joined:'2026-04-19 08:00'},
+    {addr:'0x3c88ae5c5f8d91b0c6a7f2e8d9b0c1f23456cdef',source:'auto',score:91,roi:'+182.7%',mdd:'11.5%',aum:'$4,800,000',days:28,risk:'low',tags:['ETH主力','中长线'],joined:'2026-04-19 08:00'},
+    {addr:'0xa51b4c9e7f2a8d6b5c1e9f0a7b2d4c8e56789abc',source:'manual',score:89,roi:'+156.2%',mdd:'9.8%',aum:'$2,100,000',days:25,risk:'low',tags:['多币种','稳健'],joined:'2026-04-18 14:22'},
+    {addr:'0xd8c5b2e4a9f6c3d1b8e0a7f5c2d9b4e6789abcde',source:'auto',score:86,roi:'+134.5%',mdd:'13.2%',aum:'$8,900,000',days:29,risk:'moderate',tags:['趋势','巨鲸'],joined:'2026-04-19 02:00'},
+    {addr:'0xe2a7f4c8b1d5e9a3c6f0b8d2e4a7c1f589abcdef',source:'auto',score:83,roi:'+98.1%',mdd:'15.6%',aum:'$560,000',days:22,risk:'moderate',tags:['BTC主力'],joined:'2026-04-19 02:00'},
+    {addr:'0xf1b8c5e2d7a4f9c6b3e8d1a5c7f2b4e891234567',source:'manual',score:79,roi:'+72.3%',mdd:'18.4%',aum:'$1,800,000',days:19,risk:'moderate',tags:['ETH主力','多头偏向'],joined:'2026-04-17 10:05'},
+    {addr:'0xc4a6b2d8e1f5c9a7b3e6d4f2a8c1b5e6789abcd0',source:'auto',score:76,roi:'+54.8%',mdd:'21.0%',aum:'$320,000',days:18,risk:'moderate',tags:['多币种'],joined:'2026-04-19 08:00'},
+    {addr:'0xb9e3f7c1a5d8b2e6c4f9a0d3b7c5e8a123456789',source:'auto',score:72,roi:'+36.2%',mdd:'24.8%',aum:'$4,200,000',days:17,risk:'moderate',tags:['ETH主力'],joined:'2026-04-18 20:00'},
+];
+
+// ============ 池子容量 ============
+let POOL_SIZE = 87;   // 当前池子
+const POOL_CAP = 100;
+let CAND_SIZE = 42;
+
+function short(a){ return a.slice(0,6)+'...'+a.slice(-4); }
 function riskTag(r){ return r==='low'?'<span class="tag tag-green">低风险</span>':r==='moderate'?'<span class="tag tag-orange">中风险</span>':'<span class="tag tag-red">高风险</span>'; }
+function sourceTag(s){ return s==='auto' ? '<span class="tag tag-blue">自动扫描</span>' : '<span class="tag tag-purple">运营手动</span>'; }
 
-document.getElementById('tableBody').innerHTML = mockData.map(d=>`<tr>
-    <td class="num">${d.uid}</td>
-    <td><span class="addr" title="${d.addr}">${d.addr.slice(0,6)}...${d.addr.slice(-4)}</span></td>
-    <td><span class="tag tag-blue">Hyperliquid</span></td>
-    <td><span class="score">${d.score}</span></td>
-    <td>${riskTag(d.risk)}</td>
-    <td class="num">${d.cur}/${d.max}</td>
-    <td class="num">${d.total}</td>
-    <td class="num">${d.aum}</td>
-    <td>${d.ratio}</td>
-    <td class="num">${d.days}</td>
-    <td>${d.last}</td>
-    <td>${d.tags.map(t=>'<span class="tag tag-gray">'+t+'</span>').join('')}</td>
-    <td><div class="switch ${d.status?'on':''}" onclick="this.classList.toggle('on')"></div></td>
-    <td><div class="switch ${d.display?'on':''}" onclick="this.classList.toggle('on')"></div></td>
-</tr>`).join('');
+// ============ 渲染聪明钱池 ============
+function renderPool(){
+    document.getElementById('poolBody').innerHTML = poolData.map(d=>{
+        const flag = d.flag ? `<span class="flag-warn" title="${d.flag}">⚠ ${d.flag}</span>` : '';
+        return `<tr>
+            <td class="num">${d.uid}</td>
+            <td><span class="addr" title="${d.addr}">${short(d.addr)}</span>${flag}</td>
+            <td><span class="tag tag-blue">Hyperliquid</span></td>
+            <td><span class="score">${d.score}</span></td>
+            <td>${riskTag(d.risk)}</td>
+            <td class="num">${d.cur}/${d.max}${d.cur>0?' <span class="tag tag-red" style="font-size:10px">锁定</span>':''}</td>
+            <td class="num">${d.total}</td>
+            <td class="num">${d.aum}</td>
+            <td>${d.ratio}</td>
+            <td class="num">${d.days}</td>
+            <td>${d.last}</td>
+            <td>${d.tags.map(t=>'<span class="tag tag-gray">'+t+'</span>').join('')}</td>
+            <td><div class="switch ${d.display?'on':''}" onclick="this.classList.toggle('on')"></div></td>
+            <td><a class="op-link danger" onclick="removePool('${d.addr}', ${d.cur})">移除</a></td>
+        </tr>`;
+    }).join('');
+    document.getElementById('tabPoolCount').textContent = POOL_SIZE;
+    document.getElementById('poolTotal').textContent = POOL_SIZE;
+    document.getElementById('poolCountDisplay').textContent = POOL_SIZE;
+}
 
-function openModal(){ document.getElementById('overlay').classList.add('show'); document.getElementById('modal').classList.add('show'); }
-function closeModal(){ document.getElementById('overlay').classList.remove('show'); document.getElementById('modal').classList.remove('show'); }
+// ============ 渲染候选池 ============
+function renderCand(){
+    document.getElementById('candBody').innerHTML = candData.map(d=>`<tr>
+        <td><span class="addr" title="${d.addr}">${short(d.addr)}</span></td>
+        <td>${sourceTag(d.source)}</td>
+        <td><span class="score">${d.score}</span></td>
+        <td class="num green">${d.roi}</td>
+        <td class="num">${d.mdd}</td>
+        <td class="num">${d.aum}</td>
+        <td class="num">${d.days}</td>
+        <td>${riskTag(d.risk)}</td>
+        <td>${d.tags.map(t=>'<span class="tag tag-gray">'+t+'</span>').join('')}</td>
+        <td>${d.joined}</td>
+        <td><a class="op-link success" onclick='clickAddToPool("${d.addr}", ${d.score})'>入池</a></td>
+    </tr>`).join('');
+    document.getElementById('tabCandCount').textContent = CAND_SIZE;
+    document.getElementById('candTotal').textContent = CAND_SIZE;
+    document.getElementById('candCountSub').textContent = CAND_SIZE;
+}
+
+// ============ Tab 切换 ============
+function switchTab(name){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+    document.querySelectorAll('.tab-pane').forEach(p=>p.classList.toggle('active', p.id==='pane-'+name));
+}
+
+// ============ Toast ============
+function toast(msg, kind){
+    const el = document.getElementById('toast');
+    el.className = 'toast show' + (kind ? ' '+kind : '');
+    el.textContent = msg;
+    setTimeout(()=>{ el.classList.remove('show'); }, 2600);
+}
+
+// ============ 移除：有跟单则锁 ============
+function removePool(addr, cur){
+    if (cur > 0){
+        toast('此钱包正有用户跟单，无法移除。', 'error');
+        return;
+    }
+    if (!confirm('确认将钱包 '+short(addr)+' 移出聪明钱池？\n（移出后回到候选池）')) return;
+    const idx = poolData.findIndex(x=>x.addr===addr);
+    if (idx>=0){
+        const item = poolData.splice(idx, 1)[0];
+        candData.unshift({addr:item.addr, source:'manual', score:item.score, roi:'—', mdd:'—', aum:item.aum, days:item.days, risk:item.risk, tags:item.tags, joined:new Date().toISOString().slice(0,16).replace('T',' ')});
+        POOL_SIZE--;
+        CAND_SIZE++;
+        renderPool();
+        renderCand();
+        toast('已移除，释放 1 个名额', 'success');
+    }
+}
+
+// ============ 候选池「入池」按钮 ============
+let pendingAddr = null, pendingScore = null;
+function clickAddToPool(addr, score){
+    if (POOL_SIZE < POOL_CAP){
+        const idx = candData.findIndex(x=>x.addr===addr);
+        if (idx>=0){
+            const item = candData.splice(idx, 1)[0];
+            poolData.unshift({uid:'9600'+String(10000+Math.floor(Math.random()*9999)), addr:item.addr, score:item.score, risk:item.risk, cur:0, max:5, total:0, aum:item.aum, ratio:'15%', days:item.days, last:'—', tags:item.tags, display:true, flag:null});
+            POOL_SIZE++;
+            CAND_SIZE--;
+            renderPool();
+            renderCand();
+            toast('已入池 ('+POOL_SIZE+'/100)', 'success');
+        }
+    } else {
+        // 池满，弹出替换弹窗
+        pendingAddr = addr;
+        pendingScore = score;
+        openReplaceModal();
+    }
+}
+
+// ============ 池满替换弹窗 ============
+let selectedReplaceAddr = null;
+function openReplaceModal(){
+    document.getElementById('rpNewAddr').textContent = short(pendingAddr);
+    document.getElementById('rpNewScore').textContent = pendingScore;
+    selectedReplaceAddr = null;
+    document.getElementById('rpConfirmBtn').disabled = true;
+    document.getElementById('rpConfirmBtn').style.opacity = 0.5;
+
+    const sorted = [...poolData].sort((a,b)=>{
+        // 无跟单优先，再按评分升序
+        if ((a.cur===0) !== (b.cur===0)) return a.cur===0 ? -1 : 1;
+        return a.score - b.score;
+    });
+    document.getElementById('replaceBody').innerHTML = sorted.map(d=>{
+        const locked = d.cur > 0;
+        return `<tr style="${locked?'opacity:0.45;':''}">
+            <td><input type="radio" name="rpSel" ${locked?'disabled':''} onchange='selectReplace("${d.addr}")' style="cursor:${locked?'not-allowed':'pointer'}"></td>
+            <td><span class="addr">${short(d.addr)}</span></td>
+            <td><span class="score">${d.score}</span></td>
+            <td class="num">${d.cur}/${d.max}</td>
+            <td>${locked ? '<span class="tag tag-red">锁定·有跟单</span>' : '<span class="tag tag-green">可替换</span>'}</td>
+        </tr>`;
+    }).join('');
+    document.getElementById('overlayReplace').classList.add('show');
+    document.getElementById('modalReplace').classList.add('show');
+}
+function closeReplaceModal(){
+    document.getElementById('overlayReplace').classList.remove('show');
+    document.getElementById('modalReplace').classList.remove('show');
+    pendingAddr = null;
+    selectedReplaceAddr = null;
+}
+function selectReplace(addr){
+    selectedReplaceAddr = addr;
+    document.getElementById('rpConfirmBtn').disabled = false;
+    document.getElementById('rpConfirmBtn').style.opacity = 1;
+    document.getElementById('rpConfirmBtn').style.cursor = 'pointer';
+}
+function confirmReplace(){
+    if (!selectedReplaceAddr) return;
+    // 踢出 selected，加入 pending
+    const oi = poolData.findIndex(x=>x.addr===selectedReplaceAddr);
+    if (oi>=0){
+        const out = poolData.splice(oi, 1)[0];
+        candData.unshift({addr:out.addr, source:'manual', score:out.score, roi:'—', mdd:'—', aum:out.aum, days:out.days, risk:out.risk, tags:out.tags, joined:new Date().toISOString().slice(0,16).replace('T',' ')});
+    }
+    const ci = candData.findIndex(x=>x.addr===pendingAddr);
+    if (ci>=0){
+        const inn = candData.splice(ci, 1)[0];
+        poolData.unshift({uid:'9600'+String(10000+Math.floor(Math.random()*9999)), addr:inn.addr, score:inn.score, risk:inn.risk, cur:0, max:5, total:0, aum:inn.aum, ratio:'15%', days:inn.days, last:'—', tags:inn.tags, display:true, flag:null});
+    }
+    renderPool();
+    renderCand();
+    closeReplaceModal();
+    toast('替换完成：'+short(selectedReplaceAddr)+' 出池，'+short(pendingAddr)+' 入池', 'success');
+}
+
+// ============ 添加钱包弹窗 ============
+function openAddModal(){ document.getElementById('overlayAdd').classList.add('show'); document.getElementById('modalAdd').classList.add('show'); }
+function closeAddModal(){ document.getElementById('overlayAdd').classList.remove('show'); document.getElementById('modalAdd').classList.remove('show'); }
+function submitAdd(){ closeAddModal(); toast('已添加到候选池（模拟）', 'success'); }
+
+// ============ 初始化 ============
+renderPool();
+renderCand();
 </script>
 </body>
 </html>

@@ -175,9 +175,6 @@
         .toast.error { background: rgba(245,108,108,0.95); }
         .toast.success { background: rgba(103,194,58,0.95); }
 
-        /* ===== Red flag row ===== */
-        .flag-warn { display: inline-block; background: #fef0f0; color: #f56c6c; border: 1px solid #fde2e2; border-radius: 3px; padding: 1px 6px; font-size: 10px; margin-left: 4px; }
-
         /* ===== Pagination ===== */
         .pagination { display: flex; align-items: center; justify-content: flex-end; padding: 10px 12px; gap: 4px; font-size: 12px; color: #606266; }
         .pg-btn {
@@ -300,6 +297,7 @@
                         <th>活跃天数</th>
                         <th>最近交易时间</th>
                         <th>策略标签</th>
+                        <th>状态</th>
                         <th>显示</th>
                         <th style="min-width:120px">操作</th>
                     </tr>
@@ -440,16 +438,16 @@
 <script>
 // ============ 聪明钱池 mock（87 个，展示 10）============
 const poolData = [
-    {uid:'960001001',addr:'0x8e096995c3e4a3f0bc5b3ea1cba94de2aa4d70c9',score:92,risk:'low',cur:4,max:5,total:128,aum:'$1,563,266',ratio:'15%',days:245,last:'2026-04-02 08:14',tags:['BTC主力','趋势','中长线'],display:true,flag:null},
-    {uid:'960001002',addr:'0x418aa6bf98a2b2bc93779f810330d88cde488888',score:85,risk:'low',cur:5,max:5,total:342,aum:'$5,700,000',ratio:'15%',days:380,last:'2026-04-02 06:30',tags:['多币种','稳健'],display:true,flag:null},
-    {uid:'960001003',addr:'0x7dacca323e44f168494c779bb5e7483c468ef410',score:95,risk:'low',cur:0,max:5,total:0,aum:'$9,100,000',ratio:'15%',days:312,last:'2026-04-01 22:15',tags:['巨鲸','趋势'],display:true,flag:null},
-    {uid:'960001004',addr:'0xbf732ea04197942783e34730ed6e0f6099575d58',score:88,risk:'moderate',cur:3,max:5,total:56,aum:'$57,900',ratio:'15%',days:156,last:'2026-04-02 07:42',tags:['BTC主力','多头偏向'],display:true,flag:null},
-    {uid:'960001005',addr:'0x939f95036d2e7b6d7419ec072bf9d967352204d2',score:78,risk:'low',cur:0,max:5,total:15,aum:'$11,900,000',ratio:'15%',days:290,last:'2026-04-01 18:20',tags:['ETH主力','巨鲸'],display:true,flag:null},
-    {uid:'960001006',addr:'0x8cc94dc843e1ea7a19805e0cca43001123512b6a',score:74,risk:'moderate',cur:0,max:5,total:8,aum:'$6,800,000',ratio:'15%',days:210,last:'2026-03-31 14:08',tags:['趋势','巨鲸'],display:true,flag:null},
-    {uid:'960001007',addr:'0xb0a55f13d22f66e6d495ac98113841b2326e9540',score:72,risk:'moderate',cur:0,max:5,total:0,aum:'$30,000,000',ratio:'15%',days:420,last:'2026-03-28 10:00',tags:['巨鲸'],display:false,flag:null},
-    {uid:'960001008',addr:'0xa87a233e8a7d8951ff790a2e39738086cb5f71b7',score:68,risk:'moderate',cur:3,max:5,total:45,aum:'$8,600,000',ratio:'15%',days:195,last:'2026-04-02 09:55',tags:['ETH主力','空头偏向'],display:true,flag:null},
-    {uid:'960001009',addr:'0x45d26f28196d226497130c4bac709d808fed4029',score:38,risk:'high',cur:0,max:5,total:3,aum:'$15,800,000',ratio:'15%',days:165,last:'2026-02-20 20:30',tags:['多币种','巨鲸'],display:false,flag:'建议替换：评分<40 且 30d 无交易'},
-    {uid:'960001010',addr:'0x5b5d51203a0f9079f8aeb098a6523a13f298c060',score:36,risk:'high',cur:1,max:5,total:12,aum:'$2,000,000',ratio:'15%',days:88,last:'2026-03-30 05:12',tags:['多币种'],display:false,flag:'评分<40，有跟单暂无法自动出池'},
+    {uid:'960001001',addr:'0x8e096995c3e4a3f0bc5b3ea1cba94de2aa4d70c9',score:92,risk:'low',cur:4,max:5,total:128,aum:'$1,563,266',ratio:'15%',days:245,last:'2026-04-02 08:14',tags:['BTC主力','趋势','中长线'],status:true,display:true,flag:null},
+    {uid:'960001002',addr:'0x418aa6bf98a2b2bc93779f810330d88cde488888',score:85,risk:'low',cur:5,max:5,total:342,aum:'$5,700,000',ratio:'15%',days:380,last:'2026-04-02 06:30',tags:['多币种','稳健'],status:true,display:true,flag:null},
+    {uid:'960001003',addr:'0x7dacca323e44f168494c779bb5e7483c468ef410',score:95,risk:'low',cur:0,max:5,total:0,aum:'$9,100,000',ratio:'15%',days:312,last:'2026-04-01 22:15',tags:['巨鲸','趋势'],status:true,display:true,flag:null},
+    {uid:'960001004',addr:'0xbf732ea04197942783e34730ed6e0f6099575d58',score:88,risk:'moderate',cur:3,max:5,total:56,aum:'$57,900',ratio:'15%',days:156,last:'2026-04-02 07:42',tags:['BTC主力','多头偏向'],status:true,display:true,flag:null},
+    {uid:'960001005',addr:'0x939f95036d2e7b6d7419ec072bf9d967352204d2',score:78,risk:'low',cur:0,max:5,total:15,aum:'$11,900,000',ratio:'15%',days:290,last:'2026-04-01 18:20',tags:['ETH主力','巨鲸'],status:true,display:true,flag:null},
+    {uid:'960001006',addr:'0x8cc94dc843e1ea7a19805e0cca43001123512b6a',score:74,risk:'moderate',cur:0,max:5,total:8,aum:'$6,800,000',ratio:'15%',days:210,last:'2026-03-31 14:08',tags:['趋势','巨鲸'],status:true,display:true,flag:null},
+    {uid:'960001007',addr:'0xb0a55f13d22f66e6d495ac98113841b2326e9540',score:72,risk:'moderate',cur:0,max:5,total:0,aum:'$30,000,000',ratio:'15%',days:420,last:'2026-03-28 10:00',tags:['巨鲸'],status:false,display:false,flag:null},
+    {uid:'960001008',addr:'0xa87a233e8a7d8951ff790a2e39738086cb5f71b7',score:68,risk:'moderate',cur:3,max:5,total:45,aum:'$8,600,000',ratio:'15%',days:195,last:'2026-04-02 09:55',tags:['ETH主力','空头偏向'],status:true,display:true,flag:null},
+    {uid:'960001009',addr:'0x45d26f28196d226497130c4bac709d808fed4029',score:38,risk:'high',cur:0,max:5,total:3,aum:'$15,800,000',ratio:'15%',days:165,last:'2026-02-20 20:30',tags:['多币种','巨鲸'],status:false,display:false,flag:null},
+    {uid:'960001010',addr:'0x5b5d51203a0f9079f8aeb098a6523a13f298c060',score:36,risk:'high',cur:1,max:5,total:12,aum:'$2,000,000',ratio:'15%',days:88,last:'2026-03-30 05:12',tags:['多币种'],status:false,display:false,flag:null},
 ];
 
 // ============ 候选池 mock ============
@@ -476,21 +474,21 @@ function sourceTag(s){ return s==='auto' ? '<span class="tag tag-blue">自动扫
 // ============ 渲染聪明钱池 ============
 function renderPool(){
     document.getElementById('poolBody').innerHTML = poolData.map(d=>{
-        const flag = d.flag ? `<span class="flag-warn" title="${d.flag}">⚠ ${d.flag}</span>` : '';
         return `<tr>
             <td class="num">${d.uid}</td>
-            <td><span class="addr" title="${d.addr}">${short(d.addr)}</span>${flag}</td>
+            <td><span class="addr" title="${d.addr}">${short(d.addr)}</span></td>
             <td><span class="tag tag-blue">Hyperliquid</span></td>
             <td><span class="score">${d.score}</span></td>
             <td>${riskTag(d.risk)}</td>
-            <td class="num">${d.cur}/${d.max}${d.cur>0?' <span class="tag tag-red" style="font-size:10px">锁定</span>':''}</td>
+            <td class="num">${d.cur}/${d.max}</td>
             <td class="num">${d.total}</td>
             <td class="num">${d.aum}</td>
             <td>${d.ratio}</td>
             <td class="num">${d.days}</td>
             <td>${d.last}</td>
             <td>${d.tags.map(t=>'<span class="tag tag-gray">'+t+'</span>').join('')}</td>
-            <td><div class="switch ${d.display?'on':''}" onclick="this.classList.toggle('on')"></div></td>
+            <td><div class="switch ${d.status?'on':''}" onclick="this.classList.toggle('on')" title="启用/暂停 —— 暂停后该钱包仍占 100 名额但不产生信号"></div></td>
+            <td><div class="switch ${d.display?'on':''}" onclick="this.classList.toggle('on')" title="前台展示开关"></div></td>
             <td><a class="op-link danger" onclick="removePool('${d.addr}', ${d.cur})">移除</a></td>
         </tr>`;
     }).join('');
@@ -595,7 +593,7 @@ function openReplaceModal(){
             <td><span class="addr">${short(d.addr)}</span></td>
             <td><span class="score">${d.score}</span></td>
             <td class="num">${d.cur}/${d.max}</td>
-            <td>${locked ? '<span class="tag tag-red">锁定·有跟单</span>' : '<span class="tag tag-green">可替换</span>'}</td>
+            <td>${locked ? '<span class="tag tag-orange">有跟单</span>' : '<span class="tag tag-green">可替换</span>'}</td>
         </tr>`;
     }).join('');
     document.getElementById('overlayReplace').classList.add('show');
